@@ -65,7 +65,7 @@ function open_floating_window()
 end
 
 local function project_root_dir()
-    return fn.finddir('.git/..', fn.expand('%:p:h') .. ';')
+    return fn.system('cd ' .. fn.expand('%:p:h') .. ' && git rev-parse --show-toplevel 2> /dev/null')
 end
 
 local function execute(cmd, ...)

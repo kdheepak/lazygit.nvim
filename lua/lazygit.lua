@@ -60,7 +60,8 @@ function open_floating_window()
     local window = api.nvim_open_win(buffer, true, opts)
     api.nvim_command('set winhl=Normal:Floating')
     -- use autocommand to ensure that the border_buffer closes at the same time as the main buffer
-    api.nvim_command('au BufWipeout <buffer> exe "silent bwipeout!"' .. border_buffer)
+    api.nvim_command('au BufWipeout <buffer> execute "silent bwipeout!"' .. border_buffer)
+    -- api.nvim_command('au TermOpen * <buffer> startinsert!')
     return window
 end
 
@@ -73,6 +74,14 @@ local function execute(cmd, ...)
   vim.api.nvim_command(cmd)
 end
 
+execute([[
+function! s:OnExit(job_id, code, event) dict
+  if a:code == 0
+    bd!
+  endif
+endfunction
+]])
+
 local function exec_lazygit_command()
     local current_dir = fn.getcwd()
     -- TODO: ensure that it is a valid git directory
@@ -80,7 +89,7 @@ local function exec_lazygit_command()
     local cmd = "lazygit " .. "-p " .. root_dir
     -- ensure that the buffer is closed on exit
     execute([[
-    call termopen('%s', {'on_exit': {-> execute(':q')}})
+    call termopen('%s', {'on_exit': function('s:OnExit')})
   ]], cmd)
 end
 

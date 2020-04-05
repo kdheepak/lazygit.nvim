@@ -16,7 +16,7 @@ function open_floating_window()
     -- create a unlisted scratch buffer for the border
     local border_buffer = api.nvim_create_buf(false, true)
 
-    api.nvim_buf_set_option(buffer, 'bufhidden', 'wipe')
+    api.nvim_buf_set_option(buffer, 'bufhidden', 'hide')
     api.nvim_buf_set_option(buffer, 'filetype', 'lazygit')
 
     local columns = api.nvim_get_option("columns")
@@ -61,7 +61,7 @@ function open_floating_window()
     api.nvim_command('set winhl=Normal:Floating')
     -- use autocommand to ensure that the border_buffer closes at the same time as the main buffer
     api.nvim_command('au BufWipeout <buffer> execute "silent bwipeout!"' .. border_buffer)
-    -- api.nvim_command('au TermOpen * <buffer> startinsert!')
+    api.nvim_command('au BufLeave <buffer> hide')
     return window
 end
 

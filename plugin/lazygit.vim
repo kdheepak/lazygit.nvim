@@ -8,7 +8,11 @@ set cpoptions&vim
 """"""""""""""""""""""""""""""""""""""""""""""""""""""
 
 if !exists('g:lazygit_floating_window_winblend')
-    let g:lazygit_floating_window_winblend = 5
+    let g:lazygit_floating_window_winblend = 0
+endif
+
+if !exists('g:lazygit_floating_window_scaling_factor')
+  let g:lazygit_floating_window_scaling_factor = 0.9
 endif
 
 lua require 'lazygit'.setup()

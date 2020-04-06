@@ -1,7 +1,10 @@
 local api = vim.api
 local fn = vim.fn
 
-local OPTIONS = {}
+local OPTIONS = {
+    lazygit_floating_window_scaling_factor = 0.9,
+    lazygit_floating_window_winblend = 0,
+}
 
 local function echom(message)
   api.nvim_command('echom "' .. tostring(message) .. '"')
@@ -24,10 +27,10 @@ function open_floating_window()
     local columns = api.nvim_get_option("columns")
     local lines = api.nvim_get_option("lines")
 
-    local height = math.ceil(lines * 0.8 - 4)
-    local width = math.ceil(columns * 0.8)
+    local height = math.ceil(lines * OPTIONS.lazygit_floating_window_scaling_factor) - 1
+    local width = math.ceil(columns * OPTIONS.lazygit_floating_window_scaling_factor)
 
-    local row = math.ceil(lines - height) / 2 - 1
+    local row = math.ceil(lines - height) / 2
     local col = math.ceil(columns - width) / 2
 
     local border_opts = {
@@ -107,6 +110,9 @@ end
 
 function setup()
     OPTIONS.lazygit_floating_window_winblend = api.nvim_get_var("lazygit_floating_window_winblend")
+    -- api.nvim_get_var("lazygit_floating_window_scaling_factor") returns a table, with keys true and false.
+    -- the value in corresponding to the false key appears to be what we want.
+    OPTIONS.lazygit_floating_window_scaling_factor = api.nvim_get_var("lazygit_floating_window_scaling_factor")[false]
 end
 
 return {

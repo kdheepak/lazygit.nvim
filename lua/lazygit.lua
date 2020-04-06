@@ -28,14 +28,11 @@ function open_floating_window()
     api.nvim_buf_set_option(file_buffer, 'bufhidden', 'wipe')
     api.nvim_buf_set_option(file_buffer, 'filetype', 'lazygit')
 
-    local columns = api.nvim_get_option("columns")
-    local lines = api.nvim_get_option("lines")
+    local height = math.ceil(vim.o.lines * OPTIONS.lazygit_floating_window_scaling_factor) - 1
+    local width = math.ceil(vim.o.columns * OPTIONS.lazygit_floating_window_scaling_factor)
 
-    local height = math.ceil(lines * OPTIONS.lazygit_floating_window_scaling_factor) - 1
-    local width = math.ceil(columns * OPTIONS.lazygit_floating_window_scaling_factor)
-
-    local row = math.ceil(lines - height) / 2
-    local col = math.ceil(columns - width) / 2
+    local row = math.ceil(vim.o.lines - height) / 2
+    local col = math.ceil(vim.o.columns - width) / 2
 
     local border_opts = {
         style = "minimal",

@@ -8,11 +8,7 @@ local OPTIONS = {
 
 local function execute(cmd, ...)
   cmd = cmd:format(...)
-  api.nvim_command(cmd)
-end
-
-local function echom(message)
-    execute('echom "' .. tostring(message) .. '"')
+  vim.cmd(cmd)
 end
 
 local function is_lazygit_available()
@@ -62,13 +58,13 @@ function open_floating_window()
     api.nvim_buf_set_lines(border_buffer, 0, -1, false, border_lines)
 
     local border_window = api.nvim_open_win(border_buffer, true, border_opts)
-    execute('set winhl=Normal:Floating')
+    vim.cmd 'set winhl=Normal:Floating'
     window = api.nvim_open_win(file_buffer, true, opts)
 
-    execute('set winblend=' .. OPTIONS.lazygit_floating_window_winblend)
+    vim.cmd('set winblend=' .. OPTIONS.lazygit_floating_window_winblend)
 
     -- use autocommand to ensure that the border_buffer closes at the same time as the main buffer
-    execute('au BufWipeout <buffer> silent! execute "silent bwipeout!"' .. border_buffer)
+    vim.cmd('au BufWipeout <buffer> silent! execute "silent bwipeout!"' .. border_buffer)
 end
 
 local function project_root_dir()
@@ -77,7 +73,7 @@ end
 
 function on_exit(job_id, code, event)
     if code == 0 then
-        api.nvim_command("bd!")
+        vim.cmd "bd!"
     end
 end
 
@@ -90,7 +86,7 @@ local function exec_lazygit_command()
     execute([[
         call termopen('%s', {'on_exit': {job_id, code, event-> luaeval("require('lazygit').on_exit(" . job_id . "," . code . "," . event . ")")}})
     ]], cmd)
-    execute("startinsert")
+    vim.cmd "startinsert"
 end
 
 function lazygit()

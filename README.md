@@ -26,10 +26,17 @@ Plugin 'kdheepak/lazygit.vim'
 
 ### Usage
 
+The following are configuration options and their defaults.
+
 ```vim
+let g:lazygit_floating_window_winblend = 0 " transparency of floating window
+let g:lazygit_floating_window_scaling_factor = 0.9 " scaling factor for floating window
+```
 
-let g:lazygit_floating_window_winblend = 5 " transparency of floating window
+Call `:LazyGit` to start a floating window with `lazygit`.
+And set up a mapping to call `:LazyGit`:
 
+```vim
 " setup mapping to call :LazyGit
 nnoremap <silent> <leader>lg :LazyGit<CR>
 ```

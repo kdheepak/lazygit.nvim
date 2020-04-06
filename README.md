@@ -2,6 +2,8 @@
 
 Plugin for calling [lazygit](https://github.com/jesseduffield/lazygit) from within neovim.
 
+![](https://user-images.githubusercontent.com/1813121/78596489-63bdad00-783b-11ea-91b1-b1da3da9ba47.gif)
+
 ### Install
 
 Use any plugin manager:

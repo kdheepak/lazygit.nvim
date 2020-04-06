@@ -17,11 +17,6 @@ endif
 
 lua require 'lazygit'.setup()
 
-let s:lazygit_lua_loc =  expand('<sfile>:h:r') . '/../lua/'
-
-exe "lua package.path = package.path .. ';". s:lazygit_lua_loc."?/init.lua'"
-exe "lua package.path = package.path .. ';". s:lazygit_lua_loc."?.lua'"
-
 command! LazyGit lua require'lazygit'.lazygit()
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""

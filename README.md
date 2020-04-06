@@ -27,7 +27,10 @@ Plugin 'kdheepak/lazygit.vim'
 ### Usage
 
 ```vim
-" lazygit
+
+let g:lazygit_floating_window_winblend = 5 " transparency of floating window
+
+" setup mapping to call :LazyGit
 nnoremap <silent> <leader>lg :LazyGit<CR>
 ```
 

@@ -7,6 +7,12 @@ set cpoptions&vim
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""
 
+if !exists('g:lazygit_floating_window_winblend')
+    let g:lazygit_floating_window_winblend = 5
+endif
+
+lua require 'lazygit'.setup()
+
 let s:lazygit_lua_loc =  expand('<sfile>:h:r') . '/../lua/'
 
 exe "lua package.path = package.path .. ';". s:lazygit_lua_loc."?/init.lua'"

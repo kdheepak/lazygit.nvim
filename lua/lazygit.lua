@@ -80,13 +80,11 @@ local function project_root_dir()
     return fn.system('cd ' .. fn.expand('%:p:h') .. ' && git rev-parse --show-toplevel 2> /dev/null')
 end
 
-execute([[
-function! s:OnExit(job_id, code, event) dict
-  if a:code == 0
-    bd!
-  endif
-endfunction
-]])
+function on_exit(job_id, code, event)
+    if code == 0 then
+        api.nvim_command("bd!")
+    end
+end
 
 local function exec_lazygit_command()
     local current_dir = fn.getcwd()
@@ -95,8 +93,8 @@ local function exec_lazygit_command()
     local cmd = "lazygit " .. "-p " .. root_dir
     -- ensure that the buffer is closed on exit
     execute([[
-    call termopen('%s', {'on_exit': function('s:OnExit')})
-  ]], cmd)
+        call termopen('%s', {'on_exit': {job_id, code, event-> luaeval("require('lazygit').on_exit(" . job_id . "," . code . "," . event . ")")}})
+    ]], cmd)
     execute("startinsert")
 end
 
@@ -119,4 +117,5 @@ end
 return {
     setup = setup,
     lazygit = lazygit,
+    on_exit = on_exit,
 }

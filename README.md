@@ -1,6 +1,6 @@
 # lazygit.vim
 
-Plugin for calling lazygit from within neovim.
+Plugin for calling [lazygit](https://github.com/jesseduffield/lazygit) from within neovim.
 
 ### Install
 

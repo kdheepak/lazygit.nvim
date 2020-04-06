@@ -8,8 +8,13 @@ local OPTIONS = {
     lazygit_floating_window_winblend = 0,
 }
 
+local function execute(cmd, ...)
+  cmd = cmd:format(...)
+  api.nvim_command(cmd)
+end
+
 local function echom(message)
-  api.nvim_command('echom "' .. tostring(message) .. '"')
+    execute('echom "' .. tostring(message) .. '"')
 end
 
 local function is_lazygit_available()
@@ -62,22 +67,17 @@ function open_floating_window()
     api.nvim_buf_set_lines(border_buffer, 0, -1, false, border_lines)
 
     local border_window = api.nvim_open_win(border_buffer, true, border_opts)
-    api.nvim_command('set winhl=Normal:Floating')
+    execute('set winhl=Normal:Floating')
     window = api.nvim_open_win(buffer, true, opts)
 
-    api.nvim_command('set winblend=' .. OPTIONS.lazygit_floating_window_winblend)
+    execute('set winblend=' .. OPTIONS.lazygit_floating_window_winblend)
 
     -- use autocommand to ensure that the border_buffer closes at the same time as the main buffer
-    api.nvim_command('au BufWipeout <buffer> execute "silent bwipeout!"' .. border_buffer)
+    execute('au BufWipeout <buffer> execute "silent bwipeout!"' .. border_buffer)
 end
 
 local function project_root_dir()
     return fn.system('cd ' .. fn.expand('%:p:h') .. ' && git rev-parse --show-toplevel 2> /dev/null')
-end
-
-local function execute(cmd, ...)
-  cmd = cmd:format(...)
-  vim.api.nvim_command(cmd)
 end
 
 execute([[

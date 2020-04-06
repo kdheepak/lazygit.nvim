@@ -97,6 +97,7 @@ local function exec_lazygit_command()
     execute([[
     call termopen('%s', {'on_exit': function('s:OnExit')})
   ]], cmd)
+    execute("startinsert")
 end
 
 function lazygit()

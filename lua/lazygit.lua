@@ -15,14 +15,14 @@ local function is_lazygit_available()
     return fn.executable("lazygit") == 1
 end
 
-function open_floating_window()
+local function open_floating_window()
     -- create a unlisted scratch buffer
     local file_buffer = api.nvim_create_buf(false, true)
     -- create a unlisted scratch buffer for the border
     local border_buffer = api.nvim_create_buf(false, true)
 
-    api.nvim_buf_set_option(file_buffer, 'bufhidden', 'wipe')
-    api.nvim_buf_set_option(file_buffer, 'filetype', 'lazygit')
+    vim.bo[file_buffer].bufhidden = 'wipe'
+    vim.bo[file_buffer].filetype = 'lazygit'
 
     local height = math.ceil(vim.o.lines * OPTIONS.lazygit_floating_window_scaling_factor) - 1
     local width = math.ceil(vim.o.columns * OPTIONS.lazygit_floating_window_scaling_factor)
@@ -71,7 +71,7 @@ local function project_root_dir()
     return fn.system('cd ' .. fn.expand('%:p:h') .. ' && git rev-parse --show-toplevel 2> /dev/null')
 end
 
-function on_exit(job_id, code, event)
+local function on_exit(job_id, code, event)
     if code == 0 then
         vim.cmd "bd!"
     end
@@ -89,7 +89,7 @@ local function exec_lazygit_command()
     vim.cmd "startinsert"
 end
 
-function lazygit()
+local function lazygit()
     if is_lazygit_available() ~= true then
         print("Please install lazygit. Check documentation for more information")
         return
@@ -98,7 +98,7 @@ function lazygit()
     exec_lazygit_command()
 end
 
-function setup()
+local function setup()
     OPTIONS.lazygit_floating_window_winblend = api.nvim_get_var("lazygit_floating_window_winblend")
     -- api.nvim_get_var("lazygit_floating_window_scaling_factor") returns a table, with keys true and false.
     -- the value in corresponding to the false key appears to be what we want.

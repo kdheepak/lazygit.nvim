@@ -2,6 +2,9 @@ local api = vim.api
 local fn = vim.fn
 
 local file_buffer = nil
+local border_buffer = nil
+local file_window = nil
+local border_window = nil
 
 local OPTIONS = {
     lazygit_floating_window_scaling_factor = 0.9,
@@ -35,9 +38,9 @@ end
 
 local function open_floating_window()
     -- create a unlisted scratch buffer
-    local file_buffer = api.nvim_create_buf(false, true)
+    file_buffer = api.nvim_create_buf(false, true)
     -- create a unlisted scratch buffer for the border
-    local border_buffer = api.nvim_create_buf(false, true)
+    border_buffer = api.nvim_create_buf(false, true)
 
     vim.bo[file_buffer].bufhidden = 'wipe'
     vim.bo[file_buffer].filetype = 'lazygit'
@@ -75,9 +78,9 @@ local function open_floating_window()
     -- set border_lines in the border buffer from start 0 to end -1 and strict_indexing false
     api.nvim_buf_set_lines(border_buffer, 0, -1, false, border_lines)
 
-    local border_window = api.nvim_open_win(border_buffer, true, border_opts)
+    border_window = api.nvim_open_win(border_buffer, true, border_opts)
     vim.cmd 'set winhl=Normal:Floating'
-    window = api.nvim_open_win(file_buffer, true, opts)
+    file_window = api.nvim_open_win(file_buffer, true, opts)
 
     vim.cmd('set winblend=' .. OPTIONS.lazygit_floating_window_winblend)
 
@@ -88,8 +91,6 @@ end
 
 local function on_buf_leave()
     file_buffer = fn.bufnr("%")
-    vim.cmd("hide")
-    vim.cmd("hide")
 end
 
 local function on_exit(job_id, code, event)

@@ -5,6 +5,7 @@ local file_buffer = nil
 local border_buffer = nil
 local file_window = nil
 local border_window = nil
+local previous_file_buffer = nil
 
 local OPTIONS = {
     lazygit_floating_window_scaling_factor = 0.9,
@@ -21,13 +22,10 @@ local function is_lazygit_available()
 end
 
 local function project_root_dir()
-    return fn.system('cd ' .. fn.expand('%:p:h') .. ' && git rev-parse --show-toplevel 2> /dev/null')
+    return fn.system('cd ' .. fn.fnamemodify(fn.resolve(fn.expand('%:p')), ':h') .. ' && git rev-parse --show-toplevel 2> /dev/null')
 end
 
-local function exec_lazygit_command()
-    local current_dir = fn.getcwd()
-    -- TODO: ensure that it is a valid git directory
-    local root_dir = project_root_dir()
+local function exec_lazygit_command(root_dir)
     local cmd = "lazygit " .. "-p " .. root_dir
     -- ensure that the buffer is closed on exit
     execute([[
@@ -37,6 +35,7 @@ local function exec_lazygit_command()
 end
 
 local function open_floating_window()
+    previous_file_buffer = fn.bufnr('%')
     -- create a unlisted scratch buffer
     file_buffer = api.nvim_create_buf(false, true)
     -- create a unlisted scratch buffer for the border
@@ -86,16 +85,16 @@ local function open_floating_window()
 
     -- use autocommand to ensure that the border_buffer closes at the same time as the main buffer
     vim.cmd('autocmd BufWipeout <buffer> silent! execute "silent bwipeout!"' .. border_buffer)
-    vim.cmd([[autocmd BufLeave <buffer> execute "call luaeval(\"require('lazygit').on_buf_leave()\")"]])
-end
-
-local function on_buf_leave()
-    file_buffer = fn.bufnr("%")
 end
 
 local function on_exit(job_id, code, event)
     if code == 0 then
-        vim.cmd "bd!"
+        -- delete terminal buffer
+        vim.cmd("silent! bwipeout! " .. file_buffer)
+        file_buffer = nil
+        border_buffer = nil
+        file_window = nil
+        border_window = nil
     end
 end
 
@@ -104,8 +103,10 @@ local function lazygit()
         print("Please install lazygit. Check documentation for more information")
         return
     end
+    -- TODO: ensure that it is a valid git directory
+    local root_dir = project_root_dir()
     open_floating_window()
-    exec_lazygit_command()
+    exec_lazygit_command(root_dir)
 end
 
 local function setup()

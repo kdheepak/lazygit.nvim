@@ -19,6 +19,8 @@ lua require 'lazygit'.setup()
 
 command! LazyGit lua require'lazygit'.lazygit()
 
+command! LazyGitConfig lua require'lazygit'.lazygitconfig()
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""
 
 let &cpoptions = s:save_cpo

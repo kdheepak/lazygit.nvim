@@ -116,9 +116,37 @@ local function setup()
     OPTIONS.lazygit_floating_window_scaling_factor = api.nvim_get_var("lazygit_floating_window_scaling_factor")[false]
 end
 
+local function lazygitconfig()
+    local os = fn.substitute(fn.system('uname'), '\n', '', '')
+    local config_file = ""
+    if os == "Darwin" then
+        config_file = "~/Library/Application Support/jesseduffield/lazygit/config.yml"
+    else
+        config_file = "~/.config/jesseduffield/lazygit/config.yml"
+    end
+    if fn.empty(fn.glob(config_file)) then
+        -- file does not exist
+        -- check if user wants to create it
+        local answer = fn.confirm("File " .. config_file .. " does not exist.\nDo you want to create the file and populate it with the default configuration?", "&Yes\n&No")
+        if answer == 2 then
+            return nil
+        end
+        if fn.isdirectory(fn.fnamemodify(config_file, ":h")) == false then
+            -- directory does not exist
+            fn.mkdir(fn.fnamemodify(config_file, ":h"))
+        end
+        vim.cmd("edit " .. config_file)
+        vim.cmd([[execute "silent! 0read !lazygit -c"]])
+        vim.cmd([[execute "normal 1G"]])
+    else
+        vim.cmd("edit " .. config_file)
+    end
+end
+
 return {
     setup = setup,
     lazygit = lazygit,
+    lazygitconfig = lazygitconfig,
     on_exit = on_exit,
     on_buf_leave = on_buf_leave,
 }

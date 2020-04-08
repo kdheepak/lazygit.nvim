@@ -42,12 +42,3 @@ And set up a mapping to call `:LazyGit`:
 " setup mapping to call :LazyGit
 nnoremap <silent> <leader>lg :LazyGit<CR>
 ```
-
-### Using neovim-remote
-
-Add the following to your `.gitconfig` to use your current neovim instance at the commit editor for git.
-
-```
-[core]
-  editor = nvr --remote-wait-silent
-```

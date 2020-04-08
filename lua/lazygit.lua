@@ -1,6 +1,8 @@
 local api = vim.api
 local fn = vim.fn
 
+local file_buffer = nil
+
 local OPTIONS = {
     lazygit_floating_window_scaling_factor = 0.9,
     lazygit_floating_window_winblend = 0,
@@ -13,6 +15,22 @@ end
 
 local function is_lazygit_available()
     return fn.executable("lazygit") == 1
+end
+
+local function project_root_dir()
+    return fn.system('cd ' .. fn.expand('%:p:h') .. ' && git rev-parse --show-toplevel 2> /dev/null')
+end
+
+local function exec_lazygit_command()
+    local current_dir = fn.getcwd()
+    -- TODO: ensure that it is a valid git directory
+    local root_dir = project_root_dir()
+    local cmd = "lazygit " .. "-p " .. root_dir
+    -- ensure that the buffer is closed on exit
+    execute([[
+        call termopen('%s', {'on_exit': {job_id, code, event-> luaeval("require('lazygit').on_exit(" . job_id . "," . code . "," . event . ")")}})
+    ]], cmd)
+    vim.cmd "startinsert"
 end
 
 local function open_floating_window()
@@ -64,29 +82,19 @@ local function open_floating_window()
     vim.cmd('set winblend=' .. OPTIONS.lazygit_floating_window_winblend)
 
     -- use autocommand to ensure that the border_buffer closes at the same time as the main buffer
-    vim.cmd('au BufWipeout <buffer> silent! execute "silent bwipeout!"' .. border_buffer)
+    vim.cmd('autocmd BufWipeout <buffer> silent! execute "silent bwipeout!"' .. border_buffer)
 end
 
-local function project_root_dir()
-    return fn.system('cd ' .. fn.expand('%:p:h') .. ' && git rev-parse --show-toplevel 2> /dev/null')
+local function on_buf_leave()
+    file_buffer = fn.bufnr("%")
+    vim.cmd("hide")
+    vim.cmd("hide")
 end
 
 local function on_exit(job_id, code, event)
     if code == 0 then
         vim.cmd "bd!"
     end
-end
-
-local function exec_lazygit_command()
-    local current_dir = fn.getcwd()
-    -- TODO: ensure that it is a valid git directory
-    local root_dir = project_root_dir()
-    local cmd = "lazygit " .. "-p " .. root_dir
-    -- ensure that the buffer is closed on exit
-    execute([[
-        call termopen('%s', {'on_exit': {job_id, code, event-> luaeval("require('lazygit').on_exit(" . job_id . "," . code . "," . event . ")")}})
-    ]], cmd)
-    vim.cmd "startinsert"
 end
 
 local function lazygit()
@@ -109,4 +117,5 @@ return {
     setup = setup,
     lazygit = lazygit,
     on_exit = on_exit,
+    on_buf_leave = on_buf_leave,
 }

@@ -124,7 +124,7 @@ local function lazygitconfig()
     else
         config_file = "~/.config/jesseduffield/lazygit/config.yml"
     end
-    if fn.empty(fn.glob(config_file)) then
+    if fn.empty(fn.glob(config_file)) == 1 then
         -- file does not exist
         -- check if user wants to create it
         local answer = fn.confirm("File " .. config_file .. " does not exist.\nDo you want to create the file and populate it with the default configuration?", "&Yes\n&No")

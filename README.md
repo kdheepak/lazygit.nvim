@@ -42,3 +42,13 @@ And set up a mapping to call `:LazyGit`:
 " setup mapping to call :LazyGit
 nnoremap <silent> <leader>lg :LazyGit<CR>
 ```
+
+Open the configuration file for `lazygit` directly from vim.
+
+```vim
+:LazyGitConfig<CR>
+```
+
+If the file does not exist it'll load the defaults for you.
+
+![](https://user-images.githubusercontent.com/1813121/78830902-46721580-79d8-11ea-8809-291b346b6c42.gif)

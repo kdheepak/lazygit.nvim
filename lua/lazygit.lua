@@ -26,7 +26,7 @@ local function project_root_dir()
 end
 
 local function exec_lazygit_command(root_dir)
-    local cmd = "lazygit " .. "-p " .. root_dir
+    local cmd = "GIT_EDITOR=nvim lazygit " .. "-p " .. root_dir
     -- ensure that the buffer is closed on exit
     execute([[
         call termopen('%s', {'on_exit': {job_id, code, event-> luaeval("require('lazygit').on_exit(" . job_id . "," . code . "," . event . ")")}})

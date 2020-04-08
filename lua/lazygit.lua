@@ -83,6 +83,7 @@ local function open_floating_window()
 
     -- use autocommand to ensure that the border_buffer closes at the same time as the main buffer
     vim.cmd('autocmd BufWipeout <buffer> silent! execute "silent bwipeout!"' .. border_buffer)
+    vim.cmd([[autocmd BufLeave <buffer> execute "call luaeval(\"require('lazygit').on_buf_leave()\")"]])
 end
 
 local function on_buf_leave()

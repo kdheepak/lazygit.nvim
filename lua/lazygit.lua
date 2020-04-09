@@ -2,10 +2,6 @@ local api = vim.api
 local fn = vim.fn
 
 local file_buffer = nil
-local border_buffer = nil
-local file_window = nil
-local border_window = nil
-local previous_file_buffer = nil
 
 local OPTIONS = {
     lazygit_floating_window_scaling_factor = 0.9,
@@ -35,14 +31,6 @@ local function exec_lazygit_command(root_dir)
 end
 
 local function open_floating_window()
-    previous_file_buffer = fn.bufnr('%')
-    -- create a unlisted scratch buffer
-    file_buffer = api.nvim_create_buf(false, true)
-    -- create a unlisted scratch buffer for the border
-    border_buffer = api.nvim_create_buf(false, true)
-
-    vim.bo[file_buffer].bufhidden = 'wipe'
-    vim.bo[file_buffer].filetype = 'lazygit'
 
     local height = math.ceil(vim.o.lines * OPTIONS.lazygit_floating_window_scaling_factor) - 1
     local width = math.ceil(vim.o.columns * OPTIONS.lazygit_floating_window_scaling_factor)
@@ -74,17 +62,29 @@ local function open_floating_window()
         table.insert(border_lines, middle_line)
     end
     table.insert(border_lines, '╰' .. string.rep('─', width) .. '╯')
+
+    -- create a unlisted scratch buffer for the border
+    local border_buffer = api.nvim_create_buf(false, true)
+
     -- set border_lines in the border buffer from start 0 to end -1 and strict_indexing false
-    api.nvim_buf_set_lines(border_buffer, 0, -1, false, border_lines)
+    api.nvim_buf_set_lines(border_buffer, 0, -1, true, border_lines)
+    -- create border window
+    local border_window = api.nvim_open_win(border_buffer, true, border_opts)
 
-    border_window = api.nvim_open_win(border_buffer, true, border_opts)
     vim.cmd 'set winhl=Normal:Floating'
-    file_window = api.nvim_open_win(file_buffer, true, opts)
 
+    -- create a unlisted scratch buffer
+    file_buffer = api.nvim_create_buf(false, true)
+    -- create file window
+    local file_window = api.nvim_open_win(file_buffer, true, opts)
+
+    vim.bo[file_buffer].filetype = 'lazygit'
+
+    vim.cmd('setlocal nocursorcolumn')
     vim.cmd('set winblend=' .. OPTIONS.lazygit_floating_window_winblend)
 
     -- use autocommand to ensure that the border_buffer closes at the same time as the main buffer
-    vim.cmd('autocmd BufWipeout <buffer> silent! execute "silent bwipeout!"' .. border_buffer)
+    vim.cmd('autocmd WinLeave <buffer> silent! execute "silent bdelete! "' .. file_buffer .. ' ' .. border_buffer)
 end
 
 local function on_exit(job_id, code, event)
@@ -92,9 +92,6 @@ local function on_exit(job_id, code, event)
         -- delete terminal buffer
         vim.cmd("silent! bwipeout! " .. file_buffer)
         file_buffer = nil
-        border_buffer = nil
-        file_window = nil
-        border_window = nil
     end
 end
 

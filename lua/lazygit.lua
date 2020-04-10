@@ -86,7 +86,7 @@ end
 local function on_exit(job_id, code, event)
     if code == 0 then
         -- delete terminal buffer
-        vim.cmd("silent! bwipeout! " .. file_buffer)
+        vim.cmd("silent! bdelete!")
         file_buffer = nil
     end
 end

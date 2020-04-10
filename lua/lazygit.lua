@@ -3,11 +3,6 @@ local fn = vim.fn
 
 local file_buffer = nil
 
-local OPTIONS = {
-    lazygit_floating_window_scaling_factor = 0.9,
-    lazygit_floating_window_winblend = 0,
-}
-
 local function execute(cmd, ...)
   cmd = cmd:format(...)
   vim.cmd(cmd)
@@ -32,8 +27,8 @@ end
 
 local function open_floating_window()
 
-    local height = math.ceil(vim.o.lines * OPTIONS.lazygit_floating_window_scaling_factor) - 1
-    local width = math.ceil(vim.o.columns * OPTIONS.lazygit_floating_window_scaling_factor)
+    local height = math.ceil(vim.o.lines * vim.g.lazygit_floating_window_scaling_factor[false]) - 1
+    local width = math.ceil(vim.o.columns * vim.g.lazygit_floating_window_scaling_factor[false])
 
     local row = math.ceil(vim.o.lines - height) / 2
     local col = math.ceil(vim.o.columns - width) / 2
@@ -81,7 +76,7 @@ local function open_floating_window()
     vim.bo[file_buffer].filetype = 'lazygit'
 
     vim.cmd('setlocal nocursorcolumn')
-    vim.cmd('set winblend=' .. OPTIONS.lazygit_floating_window_winblend)
+    vim.cmd('set winblend=' .. vim.g.lazygit_floating_window_winblend)
 
     -- use autocommand to ensure that the border_buffer closes at the same time as the main buffer
     vim.cmd('autocmd WinLeave <buffer> silent! execute "silent bdelete! "' .. file_buffer .. ' ' .. border_buffer)
@@ -104,13 +99,6 @@ local function lazygit()
     local root_dir = project_root_dir()
     open_floating_window()
     exec_lazygit_command(root_dir)
-end
-
-local function setup()
-    OPTIONS.lazygit_floating_window_winblend = api.nvim_get_var("lazygit_floating_window_winblend")
-    -- api.nvim_get_var("lazygit_floating_window_scaling_factor") returns a table, with keys true and false.
-    -- the value in corresponding to the false key appears to be what we want.
-    OPTIONS.lazygit_floating_window_scaling_factor = api.nvim_get_var("lazygit_floating_window_scaling_factor")[false]
 end
 
 local function lazygitconfig()

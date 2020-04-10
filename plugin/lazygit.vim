@@ -15,8 +15,6 @@ if !exists('g:lazygit_floating_window_scaling_factor')
   let g:lazygit_floating_window_scaling_factor = 0.9
 endif
 
-lua require 'lazygit'.setup()
-
 command! LazyGit lua require'lazygit'.lazygit()
 
 command! LazyGitConfig lua require'lazygit'.lazygitconfig()

@@ -79,7 +79,8 @@ local function open_floating_window()
     vim.cmd('set winblend=' .. vim.g.lazygit_floating_window_winblend)
 
     -- use autocommand to ensure that the border_buffer closes at the same time as the main buffer
-    vim.cmd('autocmd WinLeave <buffer> silent! execute "silent bdelete! "' .. file_buffer .. ' ' .. border_buffer)
+    local cmd = [[autocmd WinLeave <buffer> silent! execute 'silent bdelete! %s %s']]
+    vim.cmd(cmd:format(file_buffer, border_buffer))
 end
 
 local function on_exit(job_id, code, event)

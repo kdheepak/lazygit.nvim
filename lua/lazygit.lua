@@ -13,7 +13,22 @@ local function is_lazygit_available()
 end
 
 local function project_root_dir()
-    return vim.api.nvim_call_function("finddir", { '.git/..', fn.expand('%:p:h') .. ';' })
+    -- try file location first
+    local gitdir = vim.api.nvim_call_function('system', {'cd ' .. vim.api.nvim_call_function('expand', { '%:p:h' }) .. ' && git rev-parse --show-toplevel'} )
+    local isgitdir = vim.api.nvim_call_function('matchstr', { gitdir, '^fatal:.*' }) == ""
+    if isgitdir then
+        return gitdir
+    end
+
+    -- try symlinked file location instead
+    local gitdir = vim.api.nvim_call_function('system', { 'cd ' .. vim.api.nvim_call_function('fnamemodify', { vim.api.nvim_call_function('resolve', { vim.api.nvim_call_function('expand', { '%:p' }) }), ':h' }) .. ' && git rev-parse --show-toplevel' })
+    local isgitdir = vim.api.nvim_call_function('matchstr', { gitdir, '^fatal:.*' }) == ""
+    if isgitdir then
+        return gitdir
+    end
+
+    -- just return current working directory
+    return vim.api.nvim_call_function('getcwd')
 end
 
 local function exec_lazygit_command(root_dir)

@@ -1,7 +1,7 @@
 local api = vim.api
-local fn = vim.fn
-
 local file_buffer = nil
+
+vim.cmd = api.nvim_command
 
 local function execute(cmd, ...)
   cmd = cmd:format(...)
@@ -9,11 +9,11 @@ local function execute(cmd, ...)
 end
 
 local function is_lazygit_available()
-    return fn.executable("lazygit") == 1
+    return vim.api.nvim_call_function("executable", { "lazygit" }) == 1
 end
 
 local function project_root_dir()
-    return fn.system('cd ' .. fn.fnamemodify(fn.resolve(fn.expand('%:p')), ':h') .. ' && git rev-parse --show-toplevel 2> /dev/null')
+    return vim.api.nvim_call_function("system", { 'cd ' .. vim.api.nvim_call_function("fnamemodify", { vim.api.nvim_call_function("resolve", { vim.api.nvim_call_function("expand", { '%:p' }) }), ':h' }) .. ' && git rev-parse --show-toplevel 2> /dev/null' })
 end
 
 local function exec_lazygit_command(root_dir)
@@ -27,11 +27,16 @@ end
 
 local function open_floating_window()
 
-    local height = math.ceil(vim.o.lines * vim.g.lazygit_floating_window_scaling_factor[false]) - 1
-    local width = math.ceil(vim.o.columns * vim.g.lazygit_floating_window_scaling_factor[false])
+    local lines = api.nvim_get_option("lines")
+    local columns = api.nvim_get_option("columns")
+    local floating_window_scaling_factor = api.nvim_get_var("lazygit_floating_window_scaling_factor")[false]
+    local floating_window_winblend = api.nvim_get_var("lazygit_floating_window_winblend")
 
-    local row = math.ceil(vim.o.lines - height) / 2
-    local col = math.ceil(vim.o.columns - width) / 2
+    local height = math.ceil(lines * floating_window_scaling_factor) - 1
+    local width = math.ceil(columns * floating_window_scaling_factor)
+
+    local row = math.ceil(lines - height) / 2
+    local col = math.ceil(columns - width) / 2
 
     local border_opts = {
         style = "minimal",
@@ -73,10 +78,10 @@ local function open_floating_window()
     -- create file window
     local file_window = api.nvim_open_win(file_buffer, true, opts)
 
-    vim.bo[file_buffer].filetype = 'lazygit'
+    -- api.nvim_win_set_option(file_window, 'filetype', 'lazygit')
 
     vim.cmd('setlocal nocursorcolumn')
-    vim.cmd('set winblend=' .. vim.g.lazygit_floating_window_winblend)
+    vim.cmd('set winblend=' .. floating_window_winblend)
 
     -- use autocommand to ensure that the border_buffer closes at the same time as the main buffer
     local cmd = [[autocmd WinLeave <buffer> silent! execute 'silent bdelete! %s %s']]
@@ -103,23 +108,24 @@ local function lazygit()
 end
 
 local function lazygitconfig()
-    local os = fn.substitute(fn.system('uname'), '\n', '', '')
+    local uname = vim.api.nvim_call_function('system', { 'uname' })
+    local os = vim.api.nvim_call_function("substitute", { uname, '\n', '', '' })
     local config_file = ""
     if os == "Darwin" then
         config_file = "~/Library/Application Support/jesseduffield/lazygit/config.yml"
     else
         config_file = "~/.config/jesseduffield/lazygit/config.yml"
     end
-    if fn.empty(fn.glob(config_file)) == 1 then
+    if vim.api.nvim_call_function('empty', { vim.api.nvim_call_function('glob', { config_file }) }) == 1 then
         -- file does not exist
         -- check if user wants to create it
-        local answer = fn.confirm("File " .. config_file .. " does not exist.\nDo you want to create the file and populate it with the default configuration?", "&Yes\n&No")
+        local answer = vim.api.nvim_call_function('confirm', { "File " .. config_file .. " does not exist.\nDo you want to create the file and populate it with the default configuration?", "&Yes\n&No" })
         if answer == 2 then
             return nil
         end
-        if fn.isdirectory(fn.fnamemodify(config_file, ":h")) == false then
+        if vim.api.nvim_call_function('isdirectory', { vim.api.nvim_call_function('fnamemodify', { config_file, ":h" }) }) == false then
             -- directory does not exist
-            fn.mkdir(fn.fnamemodify(config_file, ":h"))
+            vim.api.nvim_call_function('mkdir', { vim.api.nvim_call_function('fnamemodify', { config_file, ":h" }) })
         end
         vim.cmd("edit " .. config_file)
         vim.cmd([[execute "silent! 0read !lazygit -c"]])

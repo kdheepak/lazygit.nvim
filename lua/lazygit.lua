@@ -13,7 +13,7 @@ local function is_lazygit_available()
 end
 
 local function project_root_dir()
-    return fn.system('cd ' .. fn.fnamemodify(fn.resolve(fn.expand('%:p')), ':h') .. ' && git rev-parse --show-toplevel 2> /dev/null')
+    return fn.finddir('.git/..', fn.expand('%:p:h') .. ';')
 end
 
 local function exec_lazygit_command(root_dir)

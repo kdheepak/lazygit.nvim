@@ -13,7 +13,23 @@ local function is_lazygit_available()
 end
 
 local function project_root_dir()
-    return fn.finddir('.git/..', fn.expand('%:p:h') .. ';')
+
+    -- try file location first
+    local gitdir = fn.system('cd ' .. fn.expand('%:p:h') .. ' && git rev-parse --show-toplevel')
+    local isgitdir = fn.matchstr(gitdir, '^fatal:.*') == ""
+    if isgitdir then
+        return gitdir
+    end
+
+    -- try symlinked file location instead
+    local gitdir = fn.system('cd ' .. fn.fnamemodify(fn.resolve(fn.expand('%:p')), ':h') .. ' && git rev-parse --show-toplevel')
+    local isgitdir = fn.matchstr(gitdir, '^fatal:.*') == ""
+    if isgitdir then
+        return gitdir
+    end
+
+    -- just return current working directory
+    return fn.getcwd()
 end
 
 local function exec_lazygit_command(root_dir)

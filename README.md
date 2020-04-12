@@ -4,6 +4,13 @@ Plugin for calling [lazygit](https://github.com/jesseduffield/lazygit) from with
 
 ![](https://user-images.githubusercontent.com/1813121/78614672-b8beea80-785e-11ea-8fd2-835b385ed6da.gif)
 
+If you are not using neovim nightly, use [this branch](https://github.com/kdheepak/lazygit.vim/tree/nvim-v0.4.3).
+You can install it using the following:
+
+```vim
+Plug 'kdheepak/lazygit.vim', { 'branch': 'nvim-v0.4.3' }
+```
+
 ### Install
 
 Use any plugin manager:

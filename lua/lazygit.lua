@@ -47,7 +47,10 @@ local function open_floating_window()
 
     local lines = api.nvim_get_option("lines")
     local columns = api.nvim_get_option("columns")
-    local floating_window_scaling_factor = api.nvim_get_var("lazygit_floating_window_scaling_factor")[false]
+    local floating_window_scaling_factor = api.nvim_get_var("lazygit_floating_window_scaling_factor")
+    if type(floating_window_scaling_factor) == 'table' then
+        floating_window_scaling_factor = floating_window_scaling_factor[false]
+    end
     local floating_window_winblend = api.nvim_get_var("lazygit_floating_window_winblend")
 
     local height = math.ceil(lines * floating_window_scaling_factor) - 1

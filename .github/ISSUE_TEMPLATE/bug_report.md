@@ -13,7 +13,7 @@ assignees: ''
 
 **To Reproduce**
 
-Here are the steps to reproduce the behavior using [MINRC](../../blob/master/tests/MINRC):
+Here are the steps to reproduce the behavior using [MINRC](../blob/master/tests/MINRC):
 
 <!--
 1. ...

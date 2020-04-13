@@ -1,8 +1,6 @@
 local api = vim.api
 local fn = vim.fn
 
-local file_buffer = nil
-
 local function execute(cmd, ...)
   cmd = cmd:format(...)
   vim.cmd(cmd)
@@ -94,7 +92,7 @@ local function open_floating_window()
     vim.cmd 'set winhl=Normal:Floating'
 
     -- create a unlisted scratch buffer
-    file_buffer = api.nvim_create_buf(false, true)
+    local file_buffer = api.nvim_create_buf(false, true)
     -- create file window
     local file_window = api.nvim_open_win(file_buffer, true, opts)
 
@@ -112,7 +110,6 @@ local function on_exit(job_id, code, event)
     if code == 0 then
         -- delete terminal buffer
         vim.cmd("silent! bdelete!")
-        file_buffer = nil
     end
 end
 

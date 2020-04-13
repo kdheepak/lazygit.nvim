@@ -30,8 +30,7 @@ local function project_root_dir()
     return fn.getcwd()
 end
 
-local function exec_lazygit_command(root_dir)
-    local cmd = "lazygit " .. "-p " .. root_dir
+local function exec_lazygit_command(cmd)
     if ( fn.has("win64") == 0 and fn.has("win32") == 0 and fn.has("win16") == 0 ) then
         cmd = "GIT_EDITOR=nvim " .. cmd
     end
@@ -113,15 +112,31 @@ local function on_exit(job_id, code, event)
     end
 end
 
-local function lazygit()
+local function lazygit(path)
     if is_lazygit_available() ~= true then
         print("Please install lazygit. Check documentation for more information")
         return
     end
-    -- TODO: ensure that it is a valid git directory
-    local root_dir = project_root_dir()
+    if path == nil then
+        path = project_root_dir()
+    end
     open_floating_window()
-    exec_lazygit_command(root_dir)
+    local cmd = "lazygit " .. "-p " .. path
+    exec_lazygit_command(cmd)
+end
+
+
+local function lazygitfilter(path)
+    if is_lazygit_available() ~= true then
+        print("Please install lazygit. Check documentation for more information")
+        return
+    end
+    if path == nil then
+        path = project_root_dir()
+    end
+    open_floating_window()
+    local cmd = "lazygit " .. "-f " .. path
+    exec_lazygit_command(cmd)
 end
 
 local function lazygitconfig()
@@ -154,6 +169,7 @@ end
 return {
     setup = setup,
     lazygit = lazygit,
+    lazygitfilter = lazygitfilter,
     lazygitconfig = lazygitconfig,
     on_exit = on_exit,
     on_buf_leave = on_buf_leave,

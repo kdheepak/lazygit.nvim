@@ -46,8 +46,14 @@ end
 
 local function open_floating_window()
 
-    local height = math.ceil(vim.o.lines * vim.g.lazygit_floating_window_scaling_factor[false]) - 1
-    local width = math.ceil(vim.o.columns * vim.g.lazygit_floating_window_scaling_factor[false])
+    local floating_window_scaling_factor = vim.g.lazygit_floating_window_scaling_factor
+
+    if type(floating_window_scaling_factor) == 'table' then
+        floating_window_scaling_factor = floating_window_scaling_factor[false]
+    end
+
+    local height = math.ceil(vim.o.lines * floating_window_scaling_factor) - 1
+    local width = math.ceil(vim.o.columns * floating_window_scaling_factor)
 
     local row = math.ceil(vim.o.lines - height) / 2
     local col = math.ceil(vim.o.columns - width) / 2

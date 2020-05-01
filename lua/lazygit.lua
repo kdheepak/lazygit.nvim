@@ -28,7 +28,7 @@ local function project_root_dir()
     end
 
     -- just return current working directory
-    return vim.api.nvim_call_function('getcwd')
+    return vim.api.nvim_call_function('getcwd', {0, 0})
 end
 
 local function exec_lazygit_command(root_dir)

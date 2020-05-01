@@ -27,7 +27,7 @@ local function project_root_dir()
     end
 
     -- just return current working directory
-    return fn.getcwd()
+    return fn.getcwd(0, 0)
 end
 
 local function exec_lazygit_command(cmd)

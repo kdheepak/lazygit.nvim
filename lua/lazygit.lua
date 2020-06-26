@@ -3,6 +3,10 @@ local file_buffer = nil
 
 vim.cmd = api.nvim_command
 
+local function trim(str)
+    return str:gsub("^%s+", ""):gsub("%s+$", "")
+end
+
 local function execute(cmd, ...)
   cmd = cmd:format(...)
   vim.cmd(cmd)
@@ -14,17 +18,19 @@ end
 
 local function project_root_dir()
     -- try file location first
-    local gitdir = vim.api.nvim_call_function('system', {'cd ' .. vim.api.nvim_call_function('expand', { '%:p:h' }) .. ' && git rev-parse --show-toplevel'} )
+    local folder = trim(vim.api.nvim_call_function('expand', { '%:p:h' }))
+    local gitdir = vim.api.nvim_call_function('system', {'cd "' .. folder .. '" && git rev-parse --show-toplevel'} )
     local isgitdir = vim.api.nvim_call_function('matchstr', { gitdir, '^fatal:.*' }) == ""
     if isgitdir then
-        return gitdir
+        return trim(gitdir)
     end
 
     -- try symlinked file location instead
-    local gitdir = vim.api.nvim_call_function('system', { 'cd ' .. vim.api.nvim_call_function('fnamemodify', { vim.api.nvim_call_function('resolve', { vim.api.nvim_call_function('expand', { '%:p' }) }), ':h' }) .. ' && git rev-parse --show-toplevel' })
+    local symlink = trim(vim.api.nvim_call_function('fnamemodify', { vim.api.nvim_call_function('resolve', { vim.api.nvim_call_function('expand', { '%:p' }) }), ':h' }))
+    local gitdir = vim.api.nvim_call_function('system', { 'cd "' .. symlink .. '" && git rev-parse --show-toplevel' })
     local isgitdir = vim.api.nvim_call_function('matchstr', { gitdir, '^fatal:.*' }) == ""
     if isgitdir then
-        return gitdir
+        return trim(gitdir)
     end
 
     -- just return current working directory
@@ -32,7 +38,7 @@ local function project_root_dir()
 end
 
 local function exec_lazygit_command(root_dir)
-    local cmd = "lazygit " .. "-p " .. root_dir
+    local cmd = 'lazygit' .. ' -p "' .. root_dir .. '"'
     if ( vim.api.nvim_call_function("has", { "win64" }) == 0 and vim.api.nvim_call_function("has", { "win32" }) == 0 and vim.api.nvim_call_function("has", { "win16" }) == 0 ) then
         cmd = "GIT_EDITOR=nvim " .. cmd
     end

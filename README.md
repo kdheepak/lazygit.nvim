@@ -1,4 +1,4 @@
-# lazygit.vim
+# lazygit.nvim
 
 Plugin for calling [lazygit](https://github.com/jesseduffield/lazygit) from within neovim.
 
@@ -8,7 +8,7 @@ If you are not using neovim nightly, use [this branch](https://github.com/kdheep
 You can install it using the following:
 
 ```vim
-Plug 'kdheepak/lazygit.vim', { 'branch': 'nvim-v0.4.3' }
+Plug 'kdheepak/lazygit.nvim', { 'branch': 'nvim-v0.4.3' }
 ```
 
 ### Install
@@ -18,19 +18,19 @@ Use any plugin manager:
 **[vim-plug](https://github.com/junegunn/vim-plug)**
 
 ```vim
-Plug 'kdheepak/lazygit.vim'
+Plug 'kdheepak/lazygit.nvim'
 ```
 
 **[dein.vim](https://github.com/Shougo/dein.vim)**
 
 ```vim
-call dein#add('kdheepak/lazygit.vim')
+call dein#add('kdheepak/lazygit.nvim')
 ```
 
 **[Vundle.vim](https://github.com/junegunn/vim-plug)**
 
 ```vim
-Plugin 'kdheepak/lazygit.vim'
+Plugin 'kdheepak/lazygit.nvim'
 ```
 
 ### Usage

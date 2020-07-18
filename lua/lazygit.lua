@@ -2,11 +2,6 @@ vim = vim
 local api = vim.api
 local fn = vim.fn
 
-local function execute(cmd, ...)
-  cmd = cmd:format(...)
-  vim.cmd(cmd)
-end
-
 local function trim(str)
     return str:gsub("^%s+", ""):gsub("%s+$", "")
 end

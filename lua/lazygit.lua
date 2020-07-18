@@ -40,11 +40,17 @@ local function on_exit(job_id, code, event)
     end
 end
 
---- Call lazygit
-local function exec_lazygit_command(cmd)
+-- prepend environment variable for using the correct git editor
+local function git_editor_prefix(cmd)
     if ( fn.has("win64") == 0 and fn.has("win32") == 0 and fn.has("win16") == 0 ) then
         cmd = "GIT_EDITOR=nvim " .. cmd
     end
+    return cmd
+end
+
+--- Call lazygit
+local function exec_lazygit_command(cmd)
+    cmd = git_editor_prefix(cmd)
     -- ensure that the buffer is closed on exit
     vim.fn.termopen(cmd, { on_exit = on_exit })
     vim.cmd "startinsert"

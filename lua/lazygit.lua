@@ -2,7 +2,7 @@ vim = vim
 local api = vim.api
 local fn = vim.fn
 
-FILE_BUFFER = nil
+LAZYGIT_BUFFER = nil
 LAZYGIT_LOADED = false
 
 --- Strip leading and lagging whitespace
@@ -38,9 +38,9 @@ end
 --- on_exit callback function to delete the open buffer when lazygit exits in a neovim terminal
 local function on_exit(job_id, code, event)
     if code == 0 then
-        -- delete terminal buffer
-        vim.cmd("silent! bdelete!")
-        FILE_BUFFER = nil
+        -- Close the window where the LAZYGIT_BUFFER is
+        vim.cmd("silent! :q")
+        LAZYGIT_BUFFER = nil
         LAZYGIT_LOADED = false
     end
 end
@@ -115,15 +115,15 @@ local function open_floating_window()
     vim.cmd 'set winhl=Normal:Floating'
 
     -- create a unlisted scratch buffer
-    if FILE_BUFFER == nil then
-        FILE_BUFFER = api.nvim_create_buf(false, true)
+    if LAZYGIT_BUFFER == nil then
+        LAZYGIT_BUFFER = api.nvim_create_buf(false, true)
     else
         LAZYGIT_LOADED = true
     end
     -- create file window, enter the window, and use the options defined in opts
-    local file_window = api.nvim_open_win(FILE_BUFFER, true, opts)
+    local file_window = api.nvim_open_win(LAZYGIT_BUFFER, true, opts)
 
-    vim.bo[FILE_BUFFER].filetype = 'lazygit'
+    vim.bo[LAZYGIT_BUFFER].filetype = 'lazygit'
 
     vim.cmd('setlocal bufhidden=hide')
     vim.cmd('setlocal nocursorcolumn')

@@ -2,14 +2,17 @@ vim = vim
 local api = vim.api
 local fn = vim.fn
 
+--- Strip leading and lagging whitespace
 local function trim(str)
     return str:gsub("^%s+", ""):gsub("%s+$", "")
 end
 
+--- Check if lazygit is available
 local function is_lazygit_available()
     return fn.executable("lazygit") == 1
 end
 
+--- Get project_root_dir for git repository
 local function project_root_dir()
     -- try file location first
     local gitdir = fn.system('cd "' .. fn.expand('%:p:h') .. '" && git rev-parse --show-toplevel')
@@ -29,6 +32,7 @@ local function project_root_dir()
     return fn.getcwd(0, 0)
 end
 
+--- on_exit callback function to delete the open buffer when lazygit exits in a neovim terminal
 local function on_exit(job_id, code, event)
     if code == 0 then
         -- delete terminal buffer
@@ -36,6 +40,7 @@ local function on_exit(job_id, code, event)
     end
 end
 
+--- Call lazygit
 local function exec_lazygit_command(cmd)
     if ( fn.has("win64") == 0 and fn.has("win32") == 0 and fn.has("win16") == 0 ) then
         cmd = "GIT_EDITOR=nvim " .. cmd
@@ -45,6 +50,7 @@ local function exec_lazygit_command(cmd)
     vim.cmd "startinsert"
 end
 
+--- open floating window with nice borders
 local function open_floating_window()
     local floating_window_scaling_factor = vim.g.lazygit_floating_window_scaling_factor
 
@@ -110,6 +116,7 @@ local function open_floating_window()
     vim.cmd(cmd:format(file_buffer, border_buffer))
 end
 
+--- :LazyGit entry point
 local function lazygit(path)
     if is_lazygit_available() ~= true then
         print("Please install lazygit. Check documentation for more information")
@@ -124,6 +131,7 @@ local function lazygit(path)
 end
 
 
+--- :LazyGitFilter entry point
 local function lazygitfilter(path)
     if is_lazygit_available() ~= true then
         print("Please install lazygit. Check documentation for more information")
@@ -137,6 +145,7 @@ local function lazygitfilter(path)
     exec_lazygit_command(cmd)
 end
 
+--- :LazyGitConfig entry point
 local function lazygitconfig()
     local os = fn.substitute(fn.system('uname'), '\n', '', '')
     local config_file = ""
@@ -165,10 +174,7 @@ local function lazygitconfig()
 end
 
 return {
-    setup = setup,
     lazygit = lazygit,
     lazygitfilter = lazygitfilter,
     lazygitconfig = lazygitconfig,
-    on_exit = on_exit,
-    on_buf_leave = on_buf_leave,
 }

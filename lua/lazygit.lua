@@ -3,6 +3,7 @@ local api = vim.api
 local fn = vim.fn
 
 FILE_BUFFER = nil
+LAZYGIT_LOADED = false
 
 --- Strip leading and lagging whitespace
 local function trim(str)
@@ -40,6 +41,7 @@ local function on_exit(job_id, code, event)
         -- delete terminal buffer
         vim.cmd("silent! bdelete!")
         FILE_BUFFER = nil
+        LAZYGIT_LOADED = false
     end
 end
 
@@ -53,9 +55,11 @@ end
 
 --- Call lazygit
 local function exec_lazygit_command(cmd)
-    cmd = git_editor_prefix(cmd)
-    -- ensure that the buffer is closed on exit
-    vim.fn.termopen(cmd, { on_exit = on_exit })
+    if LAZYGIT_LOADED == false then
+        cmd = git_editor_prefix(cmd)
+        -- ensure that the buffer is closed on exit
+        vim.fn.termopen(cmd, { on_exit = on_exit })
+    end
     vim.cmd "startinsert"
 end
 
@@ -113,18 +117,23 @@ local function open_floating_window()
     -- create a unlisted scratch buffer
     if FILE_BUFFER == nil then
         FILE_BUFFER = api.nvim_create_buf(false, true)
+    else
+        LAZYGIT_LOADED = true
     end
     -- create file window, enter the window, and use the options defined in opts
     local file_window = api.nvim_open_win(FILE_BUFFER, true, opts)
 
     vim.bo[FILE_BUFFER].filetype = 'lazygit'
 
+    vim.cmd('setlocal bufhidden=hide')
     vim.cmd('setlocal nocursorcolumn')
     vim.cmd('set winblend=' .. vim.g.lazygit_floating_window_winblend)
 
     -- use autocommand to ensure that the border_buffer closes at the same time as the main buffer
-    local cmd = [[autocmd WinLeave <buffer> silent! execute 'silent bdelete! %s %s']]
-    vim.cmd(cmd:format(FILE_BUFFER, border_buffer))
+    local cmd = [[autocmd WinLeave <buffer> silent! execute 'hide']]
+    vim.cmd(cmd)
+    local cmd = [[autocmd WinLeave <buffer> silent! execute 'silent bdelete! %s']]
+    vim.cmd(cmd:format(border_buffer))
 end
 
 --- :LazyGit entry point

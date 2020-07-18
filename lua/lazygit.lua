@@ -7,24 +7,27 @@ local function execute(cmd, ...)
   vim.cmd(cmd)
 end
 
+local function trim(str)
+    return str:gsub("^%s+", ""):gsub("%s+$", "")
+end
+
 local function is_lazygit_available()
     return fn.executable("lazygit") == 1
 end
 
 local function project_root_dir()
-
     -- try file location first
-    local gitdir = fn.system('cd ' .. fn.expand('%:p:h') .. ' && git rev-parse --show-toplevel')
+    local gitdir = fn.system('cd "' .. fn.expand('%:p:h') .. '" && git rev-parse --show-toplevel')
     local isgitdir = fn.matchstr(gitdir, '^fatal:.*') == ""
     if isgitdir then
-        return gitdir
+        return trim(gitdir)
     end
 
     -- try symlinked file location instead
-    local gitdir = fn.system('cd ' .. fn.fnamemodify(fn.resolve(fn.expand('%:p')), ':h') .. ' && git rev-parse --show-toplevel')
+    local gitdir = fn.system('cd "' .. fn.fnamemodify(fn.resolve(fn.expand('%:p')), ':h') .. '" && git rev-parse --show-toplevel')
     local isgitdir = fn.matchstr(gitdir, '^fatal:.*') == ""
     if isgitdir then
-        return gitdir
+        return trim(gitdir)
     end
 
     -- just return current working directory
@@ -48,7 +51,6 @@ local function exec_lazygit_command(cmd)
 end
 
 local function open_floating_window()
-
     local floating_window_scaling_factor = vim.g.lazygit_floating_window_scaling_factor
 
     if type(floating_window_scaling_factor) == 'table' then
@@ -157,11 +159,11 @@ local function lazygitconfig()
             -- directory does not exist
             fn.mkdir(fn.fnamemodify(config_file, ":h"))
         end
-        vim.cmd("edit " .. config_file)
+        vim.cmd('edit "' .. config_file .. '"')
         vim.cmd([[execute "silent! 0read !lazygit -c"]])
         vim.cmd([[execute "normal 1G"]])
     else
-        vim.cmd("edit " .. config_file)
+        vim.cmd('edit "' .. config_file .. '"')
     end
 end
 

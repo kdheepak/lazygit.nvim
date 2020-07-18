@@ -1,3 +1,4 @@
+vim = vim
 local api = vim.api
 local fn = vim.fn
 
@@ -30,14 +31,19 @@ local function project_root_dir()
     return fn.getcwd(0, 0)
 end
 
+local function on_exit(job_id, code, event)
+    if code == 0 then
+        -- delete terminal buffer
+        vim.cmd("silent! bdelete!")
+    end
+end
+
 local function exec_lazygit_command(cmd)
     if ( fn.has("win64") == 0 and fn.has("win32") == 0 and fn.has("win16") == 0 ) then
         cmd = "GIT_EDITOR=nvim " .. cmd
     end
     -- ensure that the buffer is closed on exit
-    execute([[
-        call termopen('%s', {'on_exit': {job_id, code, event-> luaeval("require('lazygit').on_exit(" . job_id . "," . code . "," . event . ")")}})
-    ]], cmd)
+    vim.fn.termopen(cmd, { on_exit = on_exit })
     vim.cmd "startinsert"
 end
 
@@ -103,13 +109,6 @@ local function open_floating_window()
     -- use autocommand to ensure that the border_buffer closes at the same time as the main buffer
     local cmd = [[autocmd WinLeave <buffer> silent! execute 'silent bdelete! %s %s']]
     vim.cmd(cmd:format(file_buffer, border_buffer))
-end
-
-local function on_exit(job_id, code, event)
-    if code == 0 then
-        -- delete terminal buffer
-        vim.cmd("silent! bdelete!")
-    end
 end
 
 local function lazygit(path)

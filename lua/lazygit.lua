@@ -53,6 +53,8 @@ end
 local function open_floating_window()
     local floating_window_scaling_factor = vim.g.lazygit_floating_window_scaling_factor
 
+    -- Why is this required?
+    -- vim.g.lazygit_floating_window_scaling_factor returns different types if the value is an integer or float
     if type(floating_window_scaling_factor) == 'table' then
         floating_window_scaling_factor = floating_window_scaling_factor[false]
     end

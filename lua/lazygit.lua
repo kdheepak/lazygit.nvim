@@ -2,6 +2,8 @@ vim = vim
 local api = vim.api
 local fn = vim.fn
 
+FILE_BUFFER = nil
+
 --- Strip leading and lagging whitespace
 local function trim(str)
     return str:gsub("^%s+", ""):gsub("%s+$", "")
@@ -37,6 +39,7 @@ local function on_exit(job_id, code, event)
     if code == 0 then
         -- delete terminal buffer
         vim.cmd("silent! bdelete!")
+        FILE_BUFFER = nil
     end
 end
 
@@ -108,18 +111,20 @@ local function open_floating_window()
     vim.cmd 'set winhl=Normal:Floating'
 
     -- create a listed scratch buffer
-    local file_buffer = api.nvim_create_buf(true, true)
+    if FILE_BUFFER == nil then
+        FILE_BUFFER = api.nvim_create_buf(true, true)
+    end
     -- create file window, enter the window, and use the options defined in opts
-    local file_window = api.nvim_open_win(file_buffer, true, opts)
+    local file_window = api.nvim_open_win(FILE_BUFFER, true, opts)
 
-    vim.bo[file_buffer].filetype = 'lazygit'
+    vim.bo[FILE_BUFFER].filetype = 'lazygit'
 
     vim.cmd('setlocal nocursorcolumn')
     vim.cmd('set winblend=' .. vim.g.lazygit_floating_window_winblend)
 
     -- use autocommand to ensure that the border_buffer closes at the same time as the main buffer
     local cmd = [[autocmd WinLeave <buffer> silent! execute 'silent bdelete! %s %s']]
-    vim.cmd(cmd:format(file_buffer, border_buffer))
+    vim.cmd(cmd:format(FILE_BUFFER, border_buffer))
 end
 
 --- :LazyGit entry point

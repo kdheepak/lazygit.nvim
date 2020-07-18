@@ -100,9 +100,9 @@ local function open_floating_window()
 
     vim.cmd 'set winhl=Normal:Floating'
 
-    -- create a unlisted scratch buffer
-    local file_buffer = api.nvim_create_buf(false, true)
-    -- create file window
+    -- create a listed scratch buffer
+    local file_buffer = api.nvim_create_buf(true, true)
+    -- create file window, enter the window, and use the options defined in opts
     local file_window = api.nvim_open_win(file_buffer, true, opts)
 
     vim.bo[file_buffer].filetype = 'lazygit'

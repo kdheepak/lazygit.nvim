@@ -110,9 +110,9 @@ local function open_floating_window()
 
     vim.cmd 'set winhl=Normal:Floating'
 
-    -- create a listed scratch buffer
+    -- create a unlisted scratch buffer
     if FILE_BUFFER == nil then
-        FILE_BUFFER = api.nvim_create_buf(true, true)
+        FILE_BUFFER = api.nvim_create_buf(false, true)
     end
     -- create file window, enter the window, and use the options defined in opts
     local file_window = api.nvim_open_win(FILE_BUFFER, true, opts)

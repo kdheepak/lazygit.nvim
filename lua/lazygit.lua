@@ -105,7 +105,7 @@ local function open_floating_window()
     -- create file window
     local file_window = api.nvim_open_win(file_buffer, true, opts)
 
-    -- api.nvim_win_set_option(file_window, 'filetype', 'lazygit')
+    api.nvim_buf_set_option(file_buffer, 'filetype', 'lazygit')
 
     vim.cmd('setlocal nocursorcolumn')
     vim.cmd('set winblend=' .. floating_window_winblend)

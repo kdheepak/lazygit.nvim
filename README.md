@@ -53,7 +53,7 @@ If the file does not exist it'll load the defaults for you.
 
 **Using neovim-remote**
 
-If you have [neovim-remote](https://github.com/mhinz/neovim-remote) and have configured to use it in neovim, it'll launch the commit editor inside your neovim instance when you use `C`.
+If you have [neovim-remote](https://github.com/mhinz/neovim-remote) and have configured to use it in neovim, it'll launch the commit editor inside your neovim instance when you use `C` inside `lazygit`.
 
 1) `pip install neovim-remote`
 

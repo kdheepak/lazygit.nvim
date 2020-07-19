@@ -6,15 +6,22 @@ Plugin for calling [lazygit](https://github.com/jesseduffield/lazygit) from with
 
 ### Install
 
-If you are not using neovim nightly, use [this branch](https://github.com/kdheepak/lazygit.vim/tree/nvim-v0.4.3).
-
-Install using **[`vim-plug`](https://github.com/junegunn/vim-plug)**:
+Install using [`vim-plug`](https://github.com/junegunn/vim-plug):
 
 ```vim
 " nvim v0.4.3
 Plug 'kdheepak/lazygit.nvim', { 'branch': 'nvim-v0.4.3' }
 " nvim nightly
 Plug 'kdheepak/lazygit.nvim'
+```
+
+Feel free to use any plugin manager.
+Just remember that if you are not using neovim nightly, you will need to use [this branch](https://github.com/kdheepak/lazygit.vim/tree/nvim-v0.4.3).
+
+You can check what version of `neovim` you have:
+
+```bash
+nvim --version
 ```
 
 ### Usage

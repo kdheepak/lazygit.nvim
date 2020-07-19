@@ -16,7 +16,7 @@ Plug 'kdheepak/lazygit.nvim'
 ```
 
 Feel free to use any plugin manager.
-Just remember that if you are not using neovim nightly, you will need to use [this branch](https://github.com/kdheepak/lazygit.vim/tree/nvim-v0.4.3).
+Just remember that if you are not using neovim nightly, you will need to use [the `nvim-v0.4.3` branch](https://github.com/kdheepak/lazygit.vim/tree/nvim-v0.4.3).
 
 You can check what version of `neovim` you have:
 

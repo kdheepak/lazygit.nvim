@@ -15,6 +15,10 @@ if !exists('g:lazygit_floating_window_scaling_factor')
   let g:lazygit_floating_window_scaling_factor = 0.9
 endif
 
+if !exists('g:lazygit_use_neovim_remote')
+  let g:lazygit_use_neovim_remote = 1
+endif
+
 command! LazyGit lua require'lazygit'.lazygit()
 
 command! LazyGitFilter lua require'lazygit'.lazygitfilter()

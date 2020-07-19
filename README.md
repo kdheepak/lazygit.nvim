@@ -2,14 +2,13 @@
 
 Plugin for calling [lazygit](https://github.com/jesseduffield/lazygit) from within neovim.
 
-![](https://user-images.githubusercontent.com/1813121/78614672-b8beea80-785e-11ea-8fd2-835b385ed6da.gif)
-
-If you are not using neovim nightly, use [this branch](https://github.com/kdheepak/lazygit.vim/tree/nvim-v0.4.3).
-You can install it using the following:
+![](https://user-images.githubusercontent.com/1813121/87866391-79fcfe00-c93e-11ea-94a9-204947de1b39.gif)
 
 ### Install
 
-**[`vim-plug`](https://github.com/junegunn/vim-plug)**
+If you are not using neovim nightly, use [this branch](https://github.com/kdheepak/lazygit.vim/tree/nvim-v0.4.3).
+
+Install using **[`vim-plug`](https://github.com/junegunn/vim-plug)**:
 
 ```vim
 " nvim v0.4.3
@@ -44,3 +43,43 @@ Open the configuration file for `lazygit` directly from vim.
 If the file does not exist it'll load the defaults for you.
 
 ![](https://user-images.githubusercontent.com/1813121/78830902-46721580-79d8-11ea-8809-291b346b6c42.gif)
+
+**Using neovim-remote**
+
+If you have [neovim-remote](https://github.com/mhinz/neovim-remote) and have configured to use it in neovim, it'll launch the commit message inside your neovim instance.
+
+1) `pip install neovim-remote`
+
+2) Add the following to your `~/.bashrc`:
+
+```bash
+if [ -n "$NVIM_LISTEN_ADDRESS" ]; then
+    alias nvim=nvr -cc split --remote-wait +'set bufhidden=wipe'
+fi
+```
+
+3) Set `EDITOR` environment variable in `~/.bashrc`:
+
+```bash
+if [ -n "$NVIM_LISTEN_ADDRESS" ]; then
+    export VISUAL="nvr -cc split --remote-wait +'set bufhidden=wipe'"
+    export EDITOR="nvr -cc split --remote-wait +'set bufhidden=wipe'"
+else
+    export VISUAL="nvim"
+    export EDITOR="nvim"
+fi
+```
+
+4) Add the following to `~/.vimrc`:
+
+```vim
+if has('nvim') && executable('nvr')
+  let $GIT_EDITOR = "nvr -cc split --remote-wait +'set bufhidden=wipe'"
+endif
+```
+
+If you have `neovim-remote` and don't want `lazygit.nvim` to use it, you can disable it using the following configuration option:
+
+```vim
+let g:lazygit_use_neovim_remote = 0
+```

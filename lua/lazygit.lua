@@ -45,18 +45,9 @@ local function on_exit(job_id, code, event)
     end
 end
 
--- prepend environment variable for using the correct git editor
-local function git_editor_prefix(cmd)
-    if ( fn.has("win64") == 0 and fn.has("win32") == 0 and fn.has("win16") == 0 ) then
-        cmd = "GIT_EDITOR=nvim " .. cmd
-    end
-    return cmd
-end
-
 --- Call lazygit
 local function exec_lazygit_command(cmd)
     if LAZYGIT_LOADED == false then
-        cmd = git_editor_prefix(cmd)
         -- ensure that the buffer is closed on exit
         vim.fn.termopen(cmd, { on_exit = on_exit })
     end
@@ -111,8 +102,7 @@ local function open_floating_window()
     api.nvim_buf_set_lines(border_buffer, 0, -1, true, border_lines)
     -- create border window
     local border_window = api.nvim_open_win(border_buffer, true, border_opts)
-
-    vim.cmd 'set winhl=Normal:Floating'
+    vim.cmd('set winhl=Normal:Floating')
 
     -- create a unlisted scratch buffer
     if LAZYGIT_BUFFER == nil then

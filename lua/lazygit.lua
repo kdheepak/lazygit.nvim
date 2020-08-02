@@ -4,6 +4,7 @@ local fn = vim.fn
 
 LAZYGIT_BUFFER = nil
 LAZYGIT_LOADED = false
+vim.g.lazygit_opened = 0
 
 --- Strip leading and lagging whitespace
 local function trim(str)
@@ -42,6 +43,7 @@ local function on_exit(job_id, code, event)
         vim.cmd("silent! :q")
         LAZYGIT_BUFFER = nil
         LAZYGIT_LOADED = false
+        vim.g.lazygit_opened = 0
     end
 end
 
@@ -49,6 +51,7 @@ end
 local function exec_lazygit_command(cmd)
     if LAZYGIT_LOADED == false then
         -- ensure that the buffer is closed on exit
+        vim.g.lazygit_opened = 1
         vim.fn.termopen(cmd, { on_exit = on_exit })
     end
     vim.cmd "startinsert"

@@ -26,8 +26,8 @@ local function project_root_dir()
     end
 
     -- try symlinked file location instead
-    local gitdir = fn.system('cd "' .. fn.fnamemodify(fn.resolve(fn.expand('%:p')), ':h') .. '" && git rev-parse --show-toplevel')
-    local isgitdir = fn.matchstr(gitdir, '^fatal:.*') == ""
+    gitdir = fn.system('cd "' .. fn.fnamemodify(fn.resolve(fn.expand('%:p')), ':h') .. '" && git rev-parse --show-toplevel')
+    isgitdir = fn.matchstr(gitdir, '^fatal:.*') == ""
     if isgitdir then
         return trim(gitdir)
     end
@@ -178,11 +178,11 @@ local function lazygitconfig()
             -- directory does not exist
             fn.mkdir(fn.fnamemodify(config_file, ":h"))
         end
-        vim.cmd('edit "' .. config_file .. '"')
+        vim.cmd('edit ' .. config_file)
         vim.cmd([[execute "silent! 0read !lazygit -c"]])
         vim.cmd([[execute "normal 1G"]])
     else
-        vim.cmd('edit "' .. config_file .. '"')
+        vim.cmd('edit ' .. config_file)
     end
 end
 

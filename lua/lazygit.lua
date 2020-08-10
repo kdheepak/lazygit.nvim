@@ -114,7 +114,7 @@ local function open_floating_window()
         LAZYGIT_LOADED = true
     end
     -- create file window, enter the window, and use the options defined in opts
-    local file_window = api.nvim_open_win(LAZYGIT_BUFFER, true, opts)
+    local _ = api.nvim_open_win(LAZYGIT_BUFFER, true, opts)
 
     vim.bo[LAZYGIT_BUFFER].filetype = 'lazygit'
 
@@ -125,7 +125,7 @@ local function open_floating_window()
     -- use autocommand to ensure that the border_buffer closes at the same time as the main buffer
     local cmd = [[autocmd WinLeave <buffer> silent! execute 'hide']]
     vim.cmd(cmd)
-    local cmd = [[autocmd WinLeave <buffer> silent! execute 'silent bdelete! %s']]
+    cmd = [[autocmd WinLeave <buffer> silent! execute 'silent bdelete! %s']]
     vim.cmd(cmd:format(border_buffer))
 end
 

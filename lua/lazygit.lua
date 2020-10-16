@@ -91,12 +91,20 @@ local function open_floating_window()
         height = height,
     }
 
-    local border_lines = {'╭' .. string.rep('─', width) .. '╮'}
+    local topleft, topright, botleft, botright
+    local corner_chars = vim.g.lazygit_floating_window_corner_chars
+    if type(corner_chars) == "table" and #corner_chars == 4 then
+      topleft, topright, botleft, botright = unpack(corner_chars)
+    else
+      topleft, topright, botleft, botright = '╭', '╮', '╰', '╯'
+    end
+
+    local border_lines = {topleft .. string.rep('─', width) .. topright}
     local middle_line = '│' .. string.rep(' ', width) .. '│'
     for i = 1, height do
         table.insert(border_lines, middle_line)
     end
-    table.insert(border_lines, '╰' .. string.rep('─', width) .. '╯')
+    table.insert(border_lines, botleft .. string.rep('─', width) .. botright)
 
     -- create a unlisted scratch buffer for the border
     local border_buffer = api.nvim_create_buf(false, true)

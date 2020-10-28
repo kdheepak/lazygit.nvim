@@ -17,6 +17,10 @@ local function is_lazygit_available()
 end
 
 local function project_root_dir()
+    -- always use bash
+    local oldshell = vim.o.shell
+    vim.o.shell = 'bash'
+
     -- try file location first
     local folder = trim(vim.api.nvim_call_function('expand', { '%:p:h' }))
     local gitdir = vim.api.nvim_call_function('system', {'cd "' .. folder .. '" && git rev-parse --show-toplevel'} )
@@ -32,6 +36,9 @@ local function project_root_dir()
     if isgitdir then
         return trim(gitdir)
     end
+
+    -- revert to old shell
+    vim.o.shell = oldshell
 
     -- just return current working directory
     return vim.api.nvim_call_function('getcwd', {0, 0})

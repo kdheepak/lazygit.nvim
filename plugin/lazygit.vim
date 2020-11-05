@@ -16,7 +16,7 @@ if !exists('g:lazygit_floating_window_scaling_factor')
 endif
 
 if !exists('g:lazygit_use_neovim_remote')
-  let g:lazygit_use_neovim_remote = 1
+  let g:lazygit_use_neovim_remote = executable('nvr') ? 1 : 0
 endif
 
 if !exists('g:lazygit_floating_window_corner_chars')

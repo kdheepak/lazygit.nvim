@@ -16,20 +16,35 @@ local function is_lazygit_available()
     return fn.executable("lazygit") == 1
 end
 
+-- Get gidir from worktree
+local function ensure_worktree_substitution(GitDir)
+    CheckPath = GitDir..'/.git'
+    if fn.isdirectory(CheckPath) == 0 then
+        GitDirFromWorktree = fn.system(
+            'cat "'..GitDir..'/.git"|sed -n "s/gitdir: //p"| sed -n "s/.git.*//p"'
+        )
+        if GitDirFromWorktree then
+            return GitDirFromWorktree
+        end
+    else
+        return GitDir
+    end
+end
+
 --- Get project_root_dir for git repository
 local function project_root_dir()
     -- try file location first
     local gitdir = fn.system('cd "' .. fn.expand('%:p:h') .. '" && git rev-parse --show-toplevel')
     local isgitdir = fn.matchstr(gitdir, '^fatal:.*') == ""
     if isgitdir then
-        return trim(gitdir)
+        return ensure_worktree_substitution(trim(gitdir))
     end
 
     -- try symlinked file location instead
     gitdir = fn.system('cd "' .. fn.fnamemodify(fn.resolve(fn.expand('%:p')), ':h') .. '" && git rev-parse --show-toplevel')
     isgitdir = fn.matchstr(gitdir, '^fatal:.*') == ""
     if isgitdir then
-        return trim(gitdir)
+        return trim(ensure_worktree_substitution(gitdir))
     end
 
     -- just return current working directory

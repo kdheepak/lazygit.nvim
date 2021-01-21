@@ -26,9 +26,8 @@ local function ensure_worktree_substitution(GitDir)
         if GitDirFromWorktree then
             return GitDirFromWorktree
         end
-    else
-        return GitDir
     end
+    return GitDir
 end
 
 --- Get project_root_dir for git repository

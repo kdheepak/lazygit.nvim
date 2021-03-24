@@ -67,6 +67,12 @@ local function open_floating_window()
         floating_window_scaling_factor = floating_window_scaling_factor[false]
     end
 
+    local status, plenary = pcall(require, 'plenary.window.float')
+    if status and vim.g.lazygit_floating_window_use_plenary and vim.g.lazygit_floating_window_use_plenary ~= 0 then
+        plenary.percentage_range_window(floating_window_scaling_factor, floating_window_scaling_factor)
+        return
+    end
+
     local height = math.ceil(vim.o.lines * floating_window_scaling_factor) - 1
     local width = math.ceil(vim.o.columns * floating_window_scaling_factor)
 

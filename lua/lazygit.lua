@@ -146,16 +146,15 @@ local function lazygit(path)
     if path == nil then
         path = project_root_dir()
     end
-    path = fn.fnameescape(path)
     open_floating_window()
     local cmd = "lazygit"
-    cmd = fn.fnameescape(fn.exepath(cmd))
     if not vim.env.GIT_DIR then
-        cmd = cmd .. " -g " .. path .. "/.git/"
+        cmd = cmd .. " -g \"" .. path .. "/.git/\""
     end
     if not vim.env.GIT_WORK_TREE then
-        cmd = cmd .. " -w " .. path
+        cmd = cmd .. " -w \"" .. path .. "\""
     end
+    print(cmd)
     exec_lazygit_command(cmd)
 end
 

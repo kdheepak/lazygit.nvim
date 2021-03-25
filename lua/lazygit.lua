@@ -154,7 +154,6 @@ local function lazygit(path)
     if not vim.env.GIT_WORK_TREE then
         cmd = cmd .. " -w \"" .. path .. "\""
     end
-    print(cmd)
     exec_lazygit_command(cmd)
 end
 

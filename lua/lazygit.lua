@@ -18,6 +18,12 @@ end
 
 --- Get project_root_dir for git repository
 local function project_root_dir()
+    -- try submodule first
+    local gitdir = fn.system('cd "' .. fn.expand('%:p:h') .. '" && git rev-parse --show-superproject-working-tree')
+    if gitdir ~= "" then
+        return trim(gitdir)
+    end
+
     -- try file location first
     local gitdir = fn.system('cd "' .. fn.expand('%:p:h') .. '" && git rev-parse --show-toplevel')
     local isgitdir = fn.matchstr(gitdir, '^fatal:.*') == ""

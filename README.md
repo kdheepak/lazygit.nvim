@@ -9,15 +9,13 @@ Plugin for calling [lazygit](https://github.com/jesseduffield/lazygit) from with
 Install using [`vim-plug`](https://github.com/junegunn/vim-plug):
 
 ```vim
-" nvim v0.4.3
-Plug 'kdheepak/lazygit.nvim', { 'branch': 'nvim-v0.4.3' }
-" nvim nightly
+" nvim v0.5.0
 Plug 'kdheepak/lazygit.nvim'
 ```
 
 Feel free to use any plugin manager.
-Just remember that if you are not using neovim nightly, you will need to use [the `nvim-v0.4.3` branch](https://github.com/kdheepak/lazygit.vim/tree/nvim-v0.4.3).
-Integration with `nvr` works better on the default branch.
+Just remember that if you are not using the latest neovim release, you will need to use [the `nvim-v0.4.3` branch](https://github.com/kdheepak/lazygit.vim/tree/nvim-v0.4.3).
+Integration with `nvr` works better on the `main` branch.
 
 You can check what version of `neovim` you have:
 
@@ -42,7 +40,7 @@ And set up a mapping to call `:LazyGit`:
 
 ```vim
 " setup mapping to call :LazyGit
-nnoremap <silent> <leader>lg :LazyGit<CR>
+nnoremap <silent> <leader>gg :LazyGit<CR>
 ```
 
 Open the configuration file for `lazygit` directly from vim.
@@ -59,9 +57,9 @@ If the file does not exist it'll load the defaults for you.
 
 If you have [neovim-remote](https://github.com/mhinz/neovim-remote) and have configured to use it in neovim, it'll launch the commit editor inside your neovim instance when you use `C` inside `lazygit`.
 
-1) `pip install neovim-remote`
+1. `pip install neovim-remote`
 
-2) Add the following to your `~/.bashrc`:
+2. Add the following to your `~/.bashrc`:
 
 ```bash
 if [ -n "$NVIM_LISTEN_ADDRESS" ]; then
@@ -69,7 +67,7 @@ if [ -n "$NVIM_LISTEN_ADDRESS" ]; then
 fi
 ```
 
-3) Set `EDITOR` environment variable in `~/.bashrc`:
+3. Set `EDITOR` environment variable in `~/.bashrc`:
 
 ```bash
 if [ -n "$NVIM_LISTEN_ADDRESS" ]; then
@@ -81,7 +79,7 @@ else
 fi
 ```
 
-4) Add the following to `~/.vimrc`:
+4. Add the following to `~/.vimrc`:
 
 ```vim
 if has('nvim') && executable('nvr')

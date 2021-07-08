@@ -18,9 +18,16 @@ end
 
 --- Get project_root_dir for git repository
 local function project_root_dir()
+
     -- always use bash
     local oldshell = vim.o.shell
     vim.o.shell = 'bash'
+
+    -- try submodule first
+    local gitdir = fn.system('cd "' .. fn.expand('%:p:h') .. '" && git rev-parse --show-superproject-working-tree')
+    if gitdir ~= "" then
+        return trim(gitdir)
+    end
 
     -- try file location first
     local gitdir = fn.system('cd "' .. fn.expand('%:p:h') .. '" && git rev-parse --show-toplevel')
@@ -72,6 +79,12 @@ local function open_floating_window()
     -- vim.g.lazygit_floating_window_scaling_factor returns different types if the value is an integer or float
     if type(floating_window_scaling_factor) == 'table' then
         floating_window_scaling_factor = floating_window_scaling_factor[false]
+    end
+
+    local status, plenary = pcall(require, 'plenary.window.float')
+    if status and vim.g.lazygit_floating_window_use_plenary and vim.g.lazygit_floating_window_use_plenary ~= 0 then
+        plenary.percentage_range_window(floating_window_scaling_factor, floating_window_scaling_factor)
+        return
     end
 
     local height = math.ceil(vim.o.lines * floating_window_scaling_factor) - 1
@@ -154,7 +167,13 @@ local function lazygit(path)
         path = project_root_dir()
     end
     open_floating_window()
-    local cmd = "lazygit " .. "-p " .. path
+    local cmd = "lazygit"
+    if not vim.env.GIT_DIR then
+        cmd = cmd .. " -g \"" .. path .. "/.git/\""
+    end
+    if not vim.env.GIT_WORK_TREE then
+        cmd = cmd .. " -w \"" .. path .. "\""
+    end
     exec_lazygit_command(cmd)
 end
 

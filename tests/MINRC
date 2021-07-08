@@ -11,7 +11,7 @@ endif
 
 call plug#begin('~/.local/share/nvim/plugged')
 
-Plug '~/gitrepos/lazygit.vim'
+Plug '~/gitrepos/lazygit.nvim'
 
 " Initialize plugin system
 call plug#end()

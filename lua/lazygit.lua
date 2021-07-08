@@ -18,6 +18,11 @@ end
 
 --- Get project_root_dir for git repository
 local function project_root_dir()
+
+    -- always use bash
+    local oldshell = vim.o.shell
+    vim.o.shell = 'bash'
+
     -- try submodule first
     local gitdir = fn.system('cd "' .. fn.expand('%:p:h') .. '" && git rev-parse --show-superproject-working-tree')
     if gitdir ~= "" then
@@ -37,6 +42,9 @@ local function project_root_dir()
     if isgitdir then
         return trim(gitdir)
     end
+
+    -- revert to old shell
+    vim.o.shell = oldshell
 
     -- just return current working directory
     return fn.getcwd(0, 0)

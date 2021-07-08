@@ -130,7 +130,7 @@ local function open_floating_window()
   vim.cmd('set winhl=Normal:Floating')
 
   -- create a unlisted scratch buffer
-  if LAZYGIT_BUFFER == nil or vim.fn.bufwinnr(LAZYGIT_BUFFER) > 0 then
+  if LAZYGIT_BUFFER == nil or vim.fn.bufwinnr(LAZYGIT_BUFFER) == 0 then
     LAZYGIT_BUFFER = api.nvim_create_buf(false, true)
   else
     LAZYGIT_LOADED = true

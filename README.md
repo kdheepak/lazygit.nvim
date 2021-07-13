@@ -4,6 +4,8 @@ Plugin for calling [lazygit](https://github.com/jesseduffield/lazygit) from with
 
 ![](https://user-images.githubusercontent.com/1813121/87866391-79fcfe00-c93e-11ea-94a9-204947de1b39.gif)
 
+See [akinsho/nvim-toggleterm](https://github.com/akinsho/nvim-toggleterm.lua#custom-terminals) as an alternative to this package.
+
 ### Install
 
 Install using [`vim-plug`](https://github.com/junegunn/vim-plug):

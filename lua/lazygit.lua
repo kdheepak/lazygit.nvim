@@ -210,7 +210,7 @@ local function lazygitconfig()
     end
     if fn.isdirectory(fn.fnamemodify(config_file, ':h')) == false then
       -- directory does not exist
-      fn.mkdir(fn.fnamemodify(config_file, ':h'))
+      fn.mkdir(fn.fnamemodify(config_file, ':h'), 'p')
     end
     vim.cmd('edit ' .. config_file)
     vim.cmd([[execute "silent! 0read !lazygit -c"]])

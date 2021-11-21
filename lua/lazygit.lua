@@ -165,6 +165,9 @@ local function lazygit(path)
   if path == nil then
     path = project_root_dir()
   end
+  if path == nil or not fn.isdirectory(path .. '/.git/') then
+      print('Not in a git repository')
+  end
   open_floating_window()
   local cmd = 'lazygit'
   if not vim.env.GIT_DIR then

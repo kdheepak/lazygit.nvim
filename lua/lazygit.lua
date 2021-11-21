@@ -27,7 +27,7 @@ local function project_root_dir()
 
   -- try submodule first
   local gitdir = fn.system('cd "' .. fn.expand('%:p:h') .. '" && git rev-parse --show-superproject-working-tree')
-  if gitdir ~= '' then
+  if gitdir ~= '' and fn.matchstr(gitdir, '^fatal:.*') == '' then
     vim.o.shell = oldshell
     return trim(gitdir)
   end
@@ -164,6 +164,10 @@ local function lazygit(path)
   end
   if path == nil then
     path = project_root_dir()
+  end
+  if path == nil or fn.isdirectory(path .. '/.git/') == 0 then
+      print('Not in a git repository')
+      return
   end
   open_floating_window()
   local cmd = 'lazygit'

@@ -27,7 +27,7 @@ local function project_root_dir()
 
   -- try submodule first
   local gitdir = fn.system('cd "' .. fn.expand('%:p:h') .. '" && git rev-parse --show-superproject-working-tree')
-  if gitdir ~= '' then
+  if gitdir ~= '' and fn.matchstr(gitdir, '^fatal:.*') == '' then
     vim.o.shell = oldshell
     return trim(gitdir)
   end

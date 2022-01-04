@@ -201,7 +201,7 @@ local function lazygitconfig()
   if os == 'Darwin' then
     config_file = '~/Library/Application Support/jesseduffield/lazygit/config.yml'
   else
-    config_file = '~/.config/jesseduffield/lazygit/config.yml'
+    config_file = '~/.config/lazygit/config.yml'
   end
   if fn.empty(fn.glob(config_file)) == 1 then
     -- file does not exist

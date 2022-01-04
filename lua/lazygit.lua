@@ -16,6 +16,11 @@ local function is_lazygit_available()
   return fn.executable('lazygit') == 1
 end
 
+local function is_symlink()
+  local resolved = fn.resolve(fn.expand('%:p'))
+  return resolved ~= fn.expand('%:p')
+end
+
 --- Get project_root_dir for git repository
 local function project_root_dir()
 
@@ -23,21 +28,6 @@ local function project_root_dir()
   local oldshell = vim.o.shell
   if vim.fn.has('win32') == 0 then
       vim.o.shell = 'bash'
-  end
-
-  -- try submodule first
-  local gitdir = fn.system('cd "' .. fn.expand('%:p:h') .. '" && git rev-parse --show-superproject-working-tree')
-  if gitdir ~= '' and fn.matchstr(gitdir, '^fatal:.*') == '' then
-    vim.o.shell = oldshell
-    return trim(gitdir)
-  end
-
-  -- try file location first
-  local gitdir = fn.system('cd "' .. fn.expand('%:p:h') .. '" && git rev-parse --show-toplevel')
-  local isgitdir = fn.matchstr(gitdir, '^fatal:.*') == ''
-  if isgitdir then
-    vim.o.shell = oldshell
-    return trim(gitdir)
   end
 
   -- try symlinked file location instead
@@ -163,18 +153,16 @@ local function lazygit(path)
     return
   end
   if path == nil then
-    path = project_root_dir()
-  end
-  if path == nil or fn.isdirectory(path .. '/.git/') == 0 then
-      print('Not in a git repository')
-      return
+    if is_symlink() then
+      path = project_root_dir()
+    end
   end
   open_floating_window()
   local cmd = 'lazygit'
-  if not vim.env.GIT_DIR then
+  if path ~= nil and not vim.env.GIT_DIR then
     cmd = cmd .. ' -g "' .. path .. '/.git/"'
   end
-  if not vim.env.GIT_WORK_TREE then
+  if path ~= nil and not vim.env.GIT_WORK_TREE then
     cmd = cmd .. ' -w "' .. path .. '"'
   end
   exec_lazygit_command(cmd)

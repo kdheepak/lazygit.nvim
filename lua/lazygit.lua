@@ -212,4 +212,9 @@ local function lazygitconfig()
   end
 end
 
-return { lazygit = lazygit, lazygitfilter = lazygitfilter, lazygitconfig = lazygitconfig }
+return {
+  lazygit = lazygit,
+  lazygitfilter = lazygitfilter,
+  lazygitconfig = lazygitconfig,
+  project_root_dir = project_root_dir,
+}

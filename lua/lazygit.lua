@@ -2,6 +2,19 @@ vim = vim
 local api = vim.api
 local fn = vim.fn
 
+-- store all git repositories visited in this session
+local lazygit_visited_git_repos = {}
+local function append_git_repo_path(repo_path)
+    -- TODO: could be done better :)
+    for _, path in ipairs(lazygit_visited_git_repos) do
+        if path == repo_path then
+            return
+        end
+    end
+
+    table.insert(lazygit_visited_git_repos, tostring(repo_path))
+end
+
 LAZYGIT_BUFFER = nil
 LAZYGIT_LOADED = false
 vim.g.lazygit_opened = 0
@@ -31,19 +44,25 @@ local function project_root_dir()
   end
 
   -- try symlinked file location instead
-  gitdir = fn.system(
+  local gitdir = fn.system(
                'cd "' .. fn.fnamemodify(fn.resolve(fn.expand('%:p')), ':h') .. '" && git rev-parse --show-toplevel')
-  isgitdir = fn.matchstr(gitdir, '^fatal:.*') == ''
+  local isgitdir = fn.matchstr(gitdir, '^fatal:.*') == ''
+
+  -- TODO: not sure the right way to do this
   if isgitdir then
     vim.o.shell = oldshell
+    append_git_repo_path(gitdir)
     return trim(gitdir)
   end
 
   -- revert to old shell
   vim.o.shell = oldshell
 
+  local repo_path = fn.getcwd(0, 0)
+  append_git_repo_path(repo_path)
+
   -- just return current working directory
-  return fn.getcwd(0, 0)
+  return repo_path
 end
 
 --- on_exit callback function to delete the open buffer when lazygit exits in a neovim terminal
@@ -158,13 +177,30 @@ local function lazygit(path)
     end
   end
   open_floating_window()
+
+  -- TODO: this should be configurable and not hardcoded like this
+  -- this is convinient if you want to carry your lazygit config in a custom location
+  local function get_nvim_root()
+      local nvim_root_path = vim.api.nvim_eval('$MYVIMRC')
+      return nvim_root_path:match("(.*".."\\"..")")
+  end
   local cmd = 'lazygit'
-  if path ~= nil and not vim.env.GIT_DIR then
-    cmd = cmd .. ' -g "' .. path .. '/.git/"'
+  _ = project_root_dir()
+
+  if path ~= nil then
+      cmd = cmd .. ' -p ' .. path
   end
-  if path ~= nil and not vim.env.GIT_WORK_TREE then
-    cmd = cmd .. ' -w "' .. path .. '"'
-  end
+
+  cmd = cmd .. ' -ucf=' .. get_nvim_root() .. '/config/config.yml'
+
+  -- if path ~= nil and not vim.env.GIT_DIR then
+  --   cmd = cmd .. ' -g "' .. path .. '/.git/"'
+  -- end
+
+  -- if path ~= nil and not vim.env.GIT_WORK_TREE then
+  --   cmd = cmd .. ' -w "' .. path .. '"'
+  -- end
+
   exec_lazygit_command(cmd)
 end
 
@@ -217,4 +253,5 @@ return {
   lazygitfilter = lazygitfilter,
   lazygitconfig = lazygitconfig,
   project_root_dir = project_root_dir,
+  lazygit_visited_git_repos = lazygit_visited_git_repos,
 }

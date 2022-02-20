@@ -11,17 +11,13 @@ local conf = require("telescope.config").values
 local lazygit = require("lazygit")
 
 
-local function lazygit_toggle(path)
+local function open_lazygit(prompt_buf)
+    local entry = action_state.get_selected_entry()
     local cmd = [[lua require"lazygit".lazygit('%s')]]
-    cmd= cmd:format(path:gsub("%s", ""))
+    local path = entry.value
+    cmd = cmd:format(path:gsub("%s", ""))
     vim.api.nvim_command(cmd)
     vim.api.nvim_buf_set_keymap(0, 't', '<Esc>', '<Esc>', {noremap = true, silent = true})
-end
-
-local function open_lazygit(prompt_buf)
-    actions.close(prompt_buf)
-    local entry = action_state.get_selected_entry()
-    lazygit_toggle(entry.value)
 end
 
 

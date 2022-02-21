@@ -2,6 +2,7 @@ vim = vim
 local api = vim.api
 local fn = vim.fn
 
+
 LAZYGIT_BUFFER = nil
 LAZYGIT_LOADED = false
 vim.g.lazygit_opened = 0
@@ -23,7 +24,6 @@ end
 
 --- Get project_root_dir for git repository
 local function project_root_dir()
-
   -- always use bash on Unix based systems.
   local oldshell = vim.o.shell
   if vim.fn.has('win32') == 0 then
@@ -31,9 +31,10 @@ local function project_root_dir()
   end
 
   -- try symlinked file location instead
-  gitdir = fn.system(
+  local gitdir = fn.system(
                'cd "' .. fn.fnamemodify(fn.resolve(fn.expand('%:p')), ':h') .. '" && git rev-parse --show-toplevel')
-  isgitdir = fn.matchstr(gitdir, '^fatal:.*') == ''
+  local isgitdir = fn.matchstr(gitdir, '^fatal:.*') == ''
+
   if isgitdir then
     vim.o.shell = oldshell
     return trim(gitdir)
@@ -152,19 +153,21 @@ local function lazygit(path)
     print('Please install lazygit. Check documentation for more information')
     return
   end
+
+  open_floating_window()
+
+  local cmd = 'lazygit'
+  -- set path to the root path
+  _ = project_root_dir()
+
   if path == nil then
     if is_symlink() then
       path = project_root_dir()
     end
+  else
+      cmd = cmd .. ' -p ' .. path
   end
-  open_floating_window()
-  local cmd = 'lazygit'
-  if path ~= nil and not vim.env.GIT_DIR then
-    cmd = cmd .. ' -g "' .. path .. '/.git/"'
-  end
-  if path ~= nil and not vim.env.GIT_WORK_TREE then
-    cmd = cmd .. ' -w "' .. path .. '"'
-  end
+
   exec_lazygit_command(cmd)
 end
 

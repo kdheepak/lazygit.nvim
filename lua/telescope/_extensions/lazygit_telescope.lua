@@ -1,10 +1,5 @@
-local Path = require("plenary.path")
-local Window = require("plenary.window.float")
-local strings = require("plenary.strings")
 local pickers = require("telescope.pickers")
 local finders = require("telescope.finders")
-local actions = require("telescope.actions")
-local utils = require("telescope.utils")
 local action_set = require("telescope.actions.set")
 local action_state = require("telescope.actions.state")
 local conf = require("telescope.config").values
@@ -24,6 +19,7 @@ end
 local lazygit_repos = function(opts)
     local displayer = require("telescope.pickers.entry_display").create {
         separator = "",
+        -- TODO: make use of telescope geometry
         items = {
             {width = 4},
             {width = 55},

@@ -5,7 +5,6 @@ local fn = vim.fn
 -- store all git repositories visited in this session
 local lazygit_visited_git_repos = {}
 local function append_git_repo_path(repo_path)
-    -- TODO: could be done better :)
     for _, path in ipairs(lazygit_visited_git_repos) do
         if path == repo_path then
             return
@@ -36,7 +35,6 @@ end
 
 --- Get project_root_dir for git repository
 local function project_root_dir()
-
   -- always use bash on Unix based systems.
   local oldshell = vim.o.shell
   if vim.fn.has('win32') == 0 then
@@ -48,7 +46,6 @@ local function project_root_dir()
                'cd "' .. fn.fnamemodify(fn.resolve(fn.expand('%:p')), ':h') .. '" && git rev-parse --show-toplevel')
   local isgitdir = fn.matchstr(gitdir, '^fatal:.*') == ''
 
-  -- TODO: not sure the right way to do this
   if isgitdir then
     vim.o.shell = oldshell
     append_git_repo_path(gitdir)
@@ -171,35 +168,20 @@ local function lazygit(path)
     print('Please install lazygit. Check documentation for more information')
     return
   end
+
+  open_floating_window()
+
+  local cmd = 'lazygit'
+  -- set path to the root path
+  _ = project_root_dir()
+
   if path == nil then
     if is_symlink() then
       path = project_root_dir()
     end
-  end
-  open_floating_window()
-
-  -- TODO: this should be configurable and not hardcoded like this
-  -- this is convinient if you want to carry your lazygit config in a custom location
-  local function get_nvim_root()
-      local nvim_root_path = vim.api.nvim_eval('$MYVIMRC')
-      return nvim_root_path:match("(.*".."\\"..")")
-  end
-  local cmd = 'lazygit'
-  _ = project_root_dir()
-
-  if path ~= nil then
+  else
       cmd = cmd .. ' -p ' .. path
   end
-
-  cmd = cmd .. ' -ucf=' .. get_nvim_root() .. '/config/config.yml'
-
-  -- if path ~= nil and not vim.env.GIT_DIR then
-  --   cmd = cmd .. ' -g "' .. path .. '/.git/"'
-  -- end
-
-  -- if path ~= nil and not vim.env.GIT_WORK_TREE then
-  --   cmd = cmd .. ' -w "' .. path .. '"'
-  -- end
 
   exec_lazygit_command(cmd)
 end

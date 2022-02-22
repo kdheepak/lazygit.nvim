@@ -5,6 +5,10 @@ local fn = vim.fn
 -- store all git repositories visited in this session
 local lazygit_visited_git_repos = {}
 local function append_git_repo_path(repo_path)
+    if repo_path == nil or not fn.isdirectory(repo_path) then
+        return
+    end
+
     for _, path in ipairs(lazygit_visited_git_repos) do
         if path == repo_path then
             return
@@ -180,7 +184,9 @@ local function lazygit(path)
       path = project_root_dir()
     end
   else
-      cmd = cmd .. ' -p ' .. path
+      if fn.isdirectory(path) then
+        cmd = cmd .. ' -p ' .. path
+      end
   end
 
   exec_lazygit_command(cmd)

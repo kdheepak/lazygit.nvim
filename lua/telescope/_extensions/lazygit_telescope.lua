@@ -8,8 +8,10 @@ local lazygit = require("lazygit")
 
 local function open_lazygit(prompt_buf)
     local entry = action_state.get_selected_entry()
-    local cmd = [[lua require"lazygit".lazygit('%s')]]
+    local cmd = [[lua require"lazygit".lazygit(nil)]]
     cmd = cmd:format(entry.value:gsub("%s", ""))
+
+    vim.fn.execute('cd ' .. entry.value)
     vim.api.nvim_command(cmd)
     vim.cmd('stopinsert')
     vim.cmd([[execute "normal i"]])

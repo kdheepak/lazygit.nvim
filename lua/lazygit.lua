@@ -55,6 +55,7 @@ local function on_exit(job_id, code, event)
     LAZYGIT_BUFFER = nil
     LAZYGIT_LOADED = false
     vim.g.lazygit_opened = 0
+    vim.cmd('silent! :checktime')
   end
 end
 

@@ -9,25 +9,17 @@ LAZYGIT_BUFFER = nil
 LAZYGIT_LOADED = false
 vim.g.lazygit_opened = 0
 
-local function clean_up_after_exit()
-  -- Close the window where the LAZYGIT_BUFFER is
-  vim.cmd('silent! :q')
-  LAZYGIT_BUFFER = nil
-  LAZYGIT_LOADED = false
-  vim.g.lazygit_opened = 0
-
-  -- make sure to update current open buffer after closing the window
-  -- 
-  vim.cmd('silent! :checktime')
-end
-
 --- on_exit callback function to delete the open buffer when lazygit exits in a neovim terminal
 local function on_exit(job_id, code, event)
   if code ~= 0 then
     return
   end
 
-  clean_up_after_exit()
+  vim.cmd('silent! :q')
+  LAZYGIT_BUFFER = nil
+  LAZYGIT_LOADED = false
+  vim.g.lazygit_opened = 0
+  vim.cmd('silent! :checktime')
 end
 
 --- Call lazygit

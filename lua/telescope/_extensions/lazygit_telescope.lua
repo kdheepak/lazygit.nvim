@@ -8,13 +8,14 @@ local lazygit_utils = require("lazygit.utils")
 
 local function open_lazygit(prompt_buf)
     local entry = action_state.get_selected_entry()
-    local cmd = [[lua require"lazygit".lazygit(nil)]]
-    cmd = cmd:format(entry.value:gsub("%s", ""))
-
     vim.fn.execute('cd ' .. entry.value)
+
+    local cmd = [[lua require"lazygit".lazygit(nil)]]
     vim.api.nvim_command(cmd)
+
     vim.cmd('stopinsert')
     vim.cmd([[execute "normal i"]])
+    vim.fn.feedkeys('j')
     vim.api.nvim_buf_set_keymap(0, 't', '<Esc>', '<Esc>', {noremap = true, silent = true})
 end
 
@@ -32,16 +33,22 @@ local lazygit_repos = function(opts)
 
     local repos = {}
     for _, v in pairs(lazygit_utils.lazygit_visited_git_repos) do
+        if v == nil then
+            goto skip
+        end
+
         local index = #repos + 1
-        -- retrieve git repo name
         local entry =
         {
             idx = index,
             value = v:gsub("%s", ""),
+            -- retrieve git repo name
             repo_name= v:gsub("%s", ""):match("^.+/(.+)$"),
         }
 
         table.insert(repos, index, entry)
+
+        ::skip::
     end
 
     pickers.new(opts or {}, {

@@ -94,3 +94,28 @@ If you have `neovim-remote` and don't want `lazygit.nvim` to use it, you can dis
 ```vim
 let g:lazygit_use_neovim_remote = 0
 ```
+
+###Telescope Plugin
+
+the telescope Plugin is used to track all git repository visited in one nvim session.
+
+__why a telescope Plugin__ ?
+Assuming you have one or more submodule(s) in your project and you want to commit changes in both the submodule(s)
+and the main repo. Though switching between submodules and main repo is not strait forward. My solution was at first,
+1. open a file inside the submodule
+2. open lazygit
+3. do commit
+4. then open a file in the main repo
+5. open lazygit
+6. do commit
+that was really and ennoying for me
+so I though about traking all the repo I visited an I can choose from the list which one I'd like to commit in.
+
+``` lua
+require('telescope').load_extension('lazygit_telescope')
+```
+
+``` lua
+    autocmd BufEnter * :lua require('lazygit.utils').project_root_dir()
+```
+

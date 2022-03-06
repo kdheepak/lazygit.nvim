@@ -111,11 +111,16 @@ and the main repo. Though switching between submodules and main repo is not stra
 that was really and ennoying for me
 so I though about traking all the repo I visited an I can choose from the list which one I'd like to commit in.
 
+to load the telescope extension you have to add this line to your configuration
 ``` lua
 require('telescope').load_extension('lazygit_telescope')
 ```
 
-``` lua
+by default the paths of each repo is stored only when lazygit is triggered. Though, this may not be convenient, so it possible
+to do something like this:
+``` vim
     autocmd BufEnter * :lua require('lazygit.utils').project_root_dir()
 ```
+
+that make sure that any opened buffer which have a git repo will be tracked.
 

@@ -121,7 +121,21 @@ Instead, you can open it with telescope.
 
 **How to use**
 
-To load the telescope extension you have to add this line to your configuration:
+Install the plugin using:
+
+```
+use({
+    "nvim-telescope/telescope.nvim",
+    requires = { { "nvim-lua/plenary.nvim" }, { "kdheepak/lazygit.nvim" } },
+    config = function()
+        require("telescope").load_extension("lazygit")
+    end,
+})
+```
+
+Lazy loading `lazygit.nvim` for telescope functionality is not supported. Open an issue if you wish to have this feature.
+
+If you are not using Packer, to load the telescope extension, you have to add this line to your configuration:
 
 ```lua
 require('telescope').load_extension('lazygit')
@@ -131,7 +145,7 @@ By default the paths of each repo is stored only when lazygit is triggered.
 Though, this may not be convenient, so it possible to do something like this:
 
 ```vim
-    autocmd BufEnter * :lua require('lazygit.utils').project_root_dir()
+autocmd BufEnter * :lua require('lazygit.utils').project_root_dir()
 ```
 
 That makes sure that any opened buffer which is contained in a git repo will be tracked.

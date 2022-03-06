@@ -95,9 +95,13 @@ If you have `neovim-remote` and don't want `lazygit.nvim` to use it, you can dis
 let g:lazygit_use_neovim_remote = 0
 ```
 
-###Telescope Plugin
+### Telescope Plugin
 
 the telescope Plugin is used to track all git repository visited in one nvim session.
+
+![lazygittelplugin](https://user-images.githubusercontent.com/10464534/156933468-c89abee4-6afb-457c-8b02-55b67913aef2.png)
+(background image is not included :smirk:)
+
 
 __why a telescope Plugin__ ?
 Assuming you have one or more submodule(s) in your project and you want to commit changes in both the submodule(s)
@@ -108,19 +112,23 @@ and the main repo. Though switching between submodules and main repo is not stra
 4. then open a file in the main repo
 5. open lazygit
 6. do commit
-that was really and ennoying for me
-so I though about traking all the repo I visited an I can choose from the list which one I'd like to commit in.
 
+that was really ennoying for me so I though about traking all repo I worked on, then I can choose from the list where I want to commit and open it with lazygit.
+
+__how to use__
 to load the telescope extension you have to add this line to your configuration
 ``` lua
 require('telescope').load_extension('lazygit_telescope')
 ```
 
-by default the paths of each repo is stored only when lazygit is triggered. Though, this may not be convenient, so it possible
-to do something like this:
+by default the paths of each repo is stored only when lazygit is triggered. Though, this may not be convenient, so it possible to do something like this:
 ``` vim
     autocmd BufEnter * :lua require('lazygit.utils').project_root_dir()
 ```
 
-that make sure that any opened buffer which have a git repo will be tracked.
+that make sure that any opened buffer which is contained in a git repo will be tracked.
 
+invoke the plugin:
+```lua
+lua require("telescope").extensions.lazygit_telescope.lazygit()
+```

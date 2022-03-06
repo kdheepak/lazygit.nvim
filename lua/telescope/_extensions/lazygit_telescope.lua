@@ -3,7 +3,7 @@ local finders = require("telescope.finders")
 local action_set = require("telescope.actions.set")
 local action_state = require("telescope.actions.state")
 local conf = require("telescope.config").values
-local lazygit = require("lazygit")
+local lazygit_utils = require("lazygit.utils")
 
 
 local function open_lazygit(prompt_buf)
@@ -31,7 +31,7 @@ local lazygit_repos = function(opts)
     }
 
     local repos = {}
-    for _, v in pairs(lazygit.lazygit_visited_git_repos) do
+    for _, v in pairs(lazygit_utils.lazygit_visited_git_repos) do
         local index = #repos + 1
         -- retrieve git repo name
         local entry =

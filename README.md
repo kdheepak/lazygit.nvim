@@ -139,5 +139,5 @@ That makes sure that any opened buffer which is contained in a git repo will be 
 Once you have loaded the extension, you can invoke the plugin using:
 
 ```lua
-lua require("telescope").extensions.lazygit_telescope.lazygit()
+lua require("telescope").extensions.lazygit.lazygit()
 ```

@@ -97,15 +97,18 @@ let g:lazygit_use_neovim_remote = 0
 
 ### Telescope Plugin
 
-the telescope Plugin is used to track all git repository visited in one nvim session.
+The Telescope plugin is used to track all git repository visited in one nvim session.
 
 ![lazygittelplugin](https://user-images.githubusercontent.com/10464534/156933468-c89abee4-6afb-457c-8b02-55b67913aef2.png)
 (background image is not included :smirk:)
 
+**Why a telescope Plugin** ?
 
-__why a telescope Plugin__ ?
 Assuming you have one or more submodule(s) in your project and you want to commit changes in both the submodule(s)
-and the main repo. Though switching between submodules and main repo is not strait forward. My solution was at first,
+and the main repo.
+Though switching between submodules and main repo is not straight forward.
+A solution at first could be:
+
 1. open a file inside the submodule
 2. open lazygit
 3. do commit
@@ -113,22 +116,28 @@ and the main repo. Though switching between submodules and main repo is not stra
 5. open lazygit
 6. do commit
 
-that was really ennoying for me so I though about traking all repo I worked on, then I can choose from the list where I want to commit and open it with lazygit.
+That is really annoying.
+Instead, you can open it with telescope.
 
-__how to use__
-to load the telescope extension you have to add this line to your configuration
-``` lua
-require('telescope').load_extension('lazygit_telescope')
+**How to use**
+
+To load the telescope extension you have to add this line to your configuration:
+
+```lua
+require('telescope').load_extension('lazygit')
 ```
 
-by default the paths of each repo is stored only when lazygit is triggered. Though, this may not be convenient, so it possible to do something like this:
-``` vim
+By default the paths of each repo is stored only when lazygit is triggered.
+Though, this may not be convenient, so it possible to do something like this:
+
+```vim
     autocmd BufEnter * :lua require('lazygit.utils').project_root_dir()
 ```
 
-that make sure that any opened buffer which is contained in a git repo will be tracked.
+That makes sure that any opened buffer which is contained in a git repo will be tracked.
 
-invoke the plugin:
+Once you have loaded the extension, you can invoke the plugin using:
+
 ```lua
 lua require("telescope").extensions.lazygit_telescope.lazygit()
 ```

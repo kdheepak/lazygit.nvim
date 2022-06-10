@@ -82,6 +82,12 @@ local function lazygitfilter(path)
   exec_lazygit_command(cmd)
 end
 
+--- :LazyGitFilterCurrentFile entry point
+local function lazygitfiltercurrentfile()
+  local current_file = vim.fn.expand('%')
+  lazygitfilter(current_file)
+end
+
 --- :LazyGitConfig entry point
 local function lazygitconfig()
   local os = fn.substitute(fn.system('uname'), '\n', '', '')
@@ -115,6 +121,7 @@ end
 return {
   lazygit = lazygit,
   lazygitfilter = lazygitfilter,
+  lazygitfiltercurrentfile = lazygitfiltercurrentfile,
   lazygitconfig = lazygitconfig,
   project_root_dir = project_root_dir,
 }

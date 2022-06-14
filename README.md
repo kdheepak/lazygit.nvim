@@ -55,6 +55,18 @@ If the file does not exist it'll load the defaults for you.
 
 ![](https://user-images.githubusercontent.com/1813121/78830902-46721580-79d8-11ea-8809-291b346b6c42.gif)
 
+Open project commits with `lazygit` directly from vim in floating window.
+
+```vim
+:LazyGitFilter<CR>
+```
+
+Open buffer commits with `lazygit` directly from vim in floating window.
+
+```vim
+:LazyGitFilterCurrentFile<CR>
+```
+
 **Using neovim-remote**
 
 If you have [neovim-remote](https://github.com/mhinz/neovim-remote) and have configured to use it in neovim, it'll launch the commit editor inside your neovim instance when you use `C` inside `lazygit`.

@@ -27,6 +27,8 @@ command! LazyGit lua require'lazygit'.lazygit()
 
 command! LazyGitFilter lua require'lazygit'.lazygitfilter()
 
+command! LazyGitFilterCurrentFile lua require'lazygit'.lazygitfiltercurrentfile()
+
 command! LazyGitConfig lua require'lazygit'.lazygitconfig()
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""

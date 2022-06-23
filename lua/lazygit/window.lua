@@ -23,40 +23,27 @@ local function open_floating_window()
   local row = math.ceil(vim.o.lines - height) / 2
   local col = math.ceil(vim.o.columns - width) / 2
 
-  local border_opts = {
+  local opts = {
+    border = 'rounded',
     style = 'minimal',
     relative = 'editor',
-    row = row - 1,
-    col = col - 1,
-    width = width + 2,
-    height = height + 2,
+    row = row,
+    col = col,
+    width = width,
+    height = height
   }
 
-  local opts = { style = 'minimal', relative = 'editor', row = row, col = col, width = width, height = height }
-
-  local topleft, topright, botleft, botright
-  local corner_chars = vim.g.lazygit_floating_window_corner_chars
-  if type(corner_chars) == 'table' and #corner_chars == 4 then
-    topleft, topright, botleft, botright = unpack(corner_chars)
-  else
-    topleft, topright, botleft, botright = '╭', '╮', '╰', '╯'
+  local border = vim.g.lazygit_border
+  if border then
+    opts.border = border
   end
-
-  local border_lines = { topleft .. string.rep('─', width) .. topright }
-  local middle_line = '│' .. string.rep(' ', width) .. '│'
-  for i = 1, height do
-    table.insert(border_lines, middle_line)
-  end
-  table.insert(border_lines, botleft .. string.rep('─', width) .. botright)
 
   -- create a unlisted scratch buffer for the border
   local border_buffer = api.nvim_create_buf(false, true)
 
-  -- set border_lines in the border buffer from start 0 to end -1 and strict_indexing false
-  api.nvim_buf_set_lines(border_buffer, 0, -1, true, border_lines)
   -- create border window
-  local border_window = api.nvim_open_win(border_buffer, true, border_opts)
-  vim.cmd('set winhl=Normal:Floating')
+  local border_window = api.nvim_open_win(border_buffer, true, opts)
+  vim.cmd 'set winhl=Normal:Floating'
 
   -- create a unlisted scratch buffer
   if LAZYGIT_BUFFER == nil or vim.fn.bufwinnr(LAZYGIT_BUFFER) == -1 then
@@ -69,8 +56,8 @@ local function open_floating_window()
 
   vim.bo[LAZYGIT_BUFFER].filetype = 'lazygit'
 
-  vim.cmd('setlocal bufhidden=hide')
-  vim.cmd('setlocal nocursorcolumn')
+  vim.cmd 'setlocal bufhidden=hide'
+  vim.cmd 'setlocal nocursorcolumn'
   vim.cmd('set winblend=' .. vim.g.lazygit_floating_window_winblend)
 
   -- use autocommand to ensure that the border_buffer closes at the same time as the main buffer

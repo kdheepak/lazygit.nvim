@@ -37,6 +37,40 @@ local function exec_lazygit_command(cmd)
   vim.cmd 'startinsert'
 end
 
+local function lazygitdefaultconfigpath()
+  local os_name = vim.loop.os_uname().sysname
+
+  -- TODO: not surer if vim.loop.os_uname() has the same result
+  -- check before replacing the following line
+  local os = fn.substitute(fn.system('uname'), '\n', '', '')
+  if os == 'Darwin' then
+    return '~/Library/Application Support/jesseduffield/lazygit/config.yml'
+  else
+    if string.find(os_name, 'Window') then
+        return '%APPDATA%/lazygit/config.yml'
+    else
+      return '~/.config/lazygit/config.yml'
+    end
+  end
+end
+
+local function lazygitgetconfigpath()
+  if vim.g.lazygit_use_custom_config_file_path == 1 then
+    if vim.g.lazygit_config_file_path then
+      -- if file exists
+      if fn.empty(fn.glob(vim.g.lazygit_config_file_path)) == 0 then
+        return vim.g.lazygit_config_file_path
+      end
+
+      print('lazygit: custom config file path: \'' .. vim.g.lazygit_config_file_path .. '\' could not be found')
+    else
+      print('lazygit: custom config file path is not set, option: \'lazygit_config_file_path\' is missing')
+    end
+  end
+
+  -- any issue with the config file we fallback to the default config file path
+  return lazygitdefaultconfigpath()
+end
 
 --- :LazyGit entry point
 local function lazygit(path)
@@ -53,6 +87,10 @@ local function lazygit(path)
 
   -- set path to the root path
   _ = project_root_dir()
+
+  -- print(lazygitgetconfigpath())
+
+  cmd = cmd .. ' -ucf ' .. lazygitgetconfigpath()
 
   if path == nil then
     if is_symlink() then
@@ -88,15 +126,11 @@ local function lazygitfiltercurrentfile()
   lazygitfilter(current_file)
 end
 
+
 --- :LazyGitConfig entry point
 local function lazygitconfig()
-  local os = fn.substitute(fn.system('uname'), '\n', '', '')
-  local config_file = ''
-  if os == 'Darwin' then
-    config_file = '~/Library/Application Support/jesseduffield/lazygit/config.yml'
-  else
-    config_file = '~/.config/lazygit/config.yml'
-  end
+  local config_file = lazygitgetconfigpath()
+
   if fn.empty(fn.glob(config_file)) == 1 then
     -- file does not exist
     -- check if user wants to create it

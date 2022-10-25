@@ -25,8 +25,7 @@ local function trim(str)
 end
 
 
-local function get_root()
-  local cwd = vim.loop.cwd()
+local function get_root(cwd)
   local status, job = pcall(require, 'plenary.job')
   if not status then
     return fn.system('git rev-parse --show-toplevel')
@@ -55,7 +54,8 @@ local function project_root_dir()
     vim.o.shell = 'bash'
   end
 
-  local root = get_root()
+  local cwd = vim.loop.cwd()
+  local root = get_root(cwd)
   if root == nil then
     return nil
   end

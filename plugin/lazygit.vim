@@ -25,6 +25,8 @@ endif
 
 command! LazyGit lua require'lazygit'.lazygit()
 
+command! LazyGitCurrentFile lua require'lazygit'.lazygitcurrentfile()
+
 command! LazyGitFilter lua require'lazygit'.lazygitfilter()
 
 command! LazyGitFilterCurrentFile lua require'lazygit'.lazygitfiltercurrentfile()

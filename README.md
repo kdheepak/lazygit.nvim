@@ -37,13 +37,15 @@ let g:lazygit_floating_window_use_plenary = 0 " use plenary.nvim to manage float
 let g:lazygit_use_neovim_remote = 1 " fallback to 0 if neovim-remote is not installed
 ```
 
-Call `:LazyGit` to start a floating window with `lazygit`.
+Call `:LazyGit` to start a floating window with `lazygit` in the current working directory.
 And set up a mapping to call `:LazyGit`:
 
 ```vim
 " setup mapping to call :LazyGit
 nnoremap <silent> <leader>gg :LazyGit<CR>
 ```
+
+Call `:LazyGitCurrentFile` to start a floating window with `lazygit` in the project root of the current file.
 
 Open the configuration file for `lazygit` directly from vim.
 

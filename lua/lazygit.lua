@@ -1,5 +1,6 @@
 local open_floating_window = require"lazygit.window".open_floating_window
 local project_root_dir  = require"lazygit.utils".project_root_dir
+local get_root  = require"lazygit.utils".get_root
 local is_lazygit_available = require"lazygit.utils".is_lazygit_available
 local is_symlink = require"lazygit.utils".is_symlink
 
@@ -67,6 +68,13 @@ local function lazygit(path)
   exec_lazygit_command(cmd)
 end
 
+--- :LazyGitCurrentFile entry point
+local function lazygitcurrentfile()
+  local current_dir = vim.fn.expand('%:p:h')
+  local git_root = get_root(current_dir)
+  lazygit(git_root)
+end
+
 --- :LazyGitFilter entry point
 local function lazygitfilter(path)
   if is_lazygit_available() ~= true then
@@ -120,6 +128,7 @@ end
 
 return {
   lazygit = lazygit,
+  lazygitcurrentfile = lazygitcurrentfile,
   lazygitfilter = lazygitfilter,
   lazygitfiltercurrentfile = lazygitfiltercurrentfile,
   lazygitconfig = lazygitconfig,

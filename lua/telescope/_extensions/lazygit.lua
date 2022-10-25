@@ -1,6 +1,6 @@
 local pickers = require("telescope.pickers")
 local finders = require("telescope.finders")
-local action_set = require("telescope.actions.set")
+local actions = require("telescope.actions")
 local action_state = require("telescope.actions.state")
 local conf = require("telescope.config").values
 local lazygit_utils = require("lazygit.utils")
@@ -72,8 +72,15 @@ local lazygit_repos = function(opts)
             end,
         },
         sorter = conf.generic_sorter(opts),
-        attach_mappings = function(_, _)
-            action_set.select:replace(open_lazygit)
+        attach_mappings = function(prompt_buf, _)
+            actions.select_default:replace(function ()
+                    -- for what ever reason any attempt to open an external window (such as lazygit)
+                    -- shall be done after closing the buffer manually
+                    actions.close(prompt_buf)
+
+                    open_lazygit()
+                end
+            )
             return true
         end
     }):find()

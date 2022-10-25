@@ -10,6 +10,8 @@ LAZYGIT_BUFFER = nil
 LAZYGIT_LOADED = false
 vim.g.lazygit_opened = 0
 local prev_win = -1
+local win = -1
+local buffer = -1
 
 --- on_exit callback function to delete the open buffer when lazygit exits in a neovim terminal
 local function on_exit(job_id, code, event)
@@ -17,14 +19,20 @@ local function on_exit(job_id, code, event)
     return
   end
 
-  vim.cmd('silent! :q')
   LAZYGIT_BUFFER = nil
   LAZYGIT_LOADED = false
   vim.g.lazygit_opened = 0
   vim.cmd('silent! :checktime')
+
   if vim.api.nvim_win_is_valid(prev_win) then
+    vim.api.nvim_win_close(win, true)
     vim.api.nvim_set_current_win(prev_win)
     prev_win = -1
+    if vim.api.nvim_buf_is_valid(buffer) and vim.api.nvim_buf_is_loaded(buffer) then
+      vim.api.nvim_buf_delete(buffer, { force = true })
+    end
+    buffer = -1
+    win = -1
   end
 end
 
@@ -48,7 +56,7 @@ local function lazygit(path)
 
   prev_win = vim.api.nvim_get_current_win()
 
-  open_floating_window()
+  win, buffer = open_floating_window()
 
   local cmd = 'lazygit'
 

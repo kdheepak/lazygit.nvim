@@ -23,6 +23,12 @@ if !exists('g:lazygit_floating_window_corner_chars')
   let g:lazygit_floating_window_corner_chars = ['╭', '╮', '╰', '╯']
 endif
 
+" if lazygit_use_custom_config_file_path is set to 1 the
+" lazygit_config_file_path option will be evaluated
+let g:lazygit_use_custom_config_file_path = 0
+" path to custom config file
+let g:lazygit_config_file_path = ''
+
 command! LazyGit lua require'lazygit'.lazygit()
 
 command! LazyGitCurrentFile lua require'lazygit'.lazygitcurrentfile()

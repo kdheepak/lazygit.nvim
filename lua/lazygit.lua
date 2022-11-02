@@ -47,34 +47,19 @@ local function exec_lazygit_command(cmd)
 end
 
 local function lazygitdefaultconfigpath()
-  local os_name = vim.loop.os_uname().sysname
-
-  -- TODO: not surer if vim.loop.os_uname() has the same result
-  -- check before replacing the following line
-  local os = fn.substitute(fn.system("uname"), "\n", "", "")
-  if os == "Darwin" then
-    return "~/Library/Application\\ Support/lazygit/config.yml"
-  else
-    if string.find(os_name, "Window") then
-      return "%APPDATA%/lazygit/config.yml"
-    else
-      return "~/.config/lazygit/config.yml"
-    end
-  end
+  return fn.substitute(fn.system("lazygit -cd"), "\n", "", "")
 end
 
 local function lazygitgetconfigpath()
-  if vim.g.lazygit_use_custom_config_file_path == 1 then
-    if vim.g.lazygit_config_file_path then
-      -- if file exists
-      if fn.empty(fn.glob(vim.g.lazygit_config_file_path)) == 0 then
-        return vim.g.lazygit_config_file_path
-      end
-
-      print("lazygit: custom config file path: '" .. vim.g.lazygit_config_file_path .. "' could not be found")
-    else
-      print("lazygit: custom config file path is not set, option: 'lazygit_config_file_path' is missing")
+  if vim.g.lazygit_config_file_path then
+    -- if file exists
+    if fn.empty(fn.glob(vim.g.lazygit_config_file_path)) == 0 then
+      return vim.g.lazygit_config_file_path
     end
+
+    print("lazygit: custom config file path: '" .. vim.g.lazygit_config_file_path .. "' could not be found")
+  else
+    print("lazygit: custom config file path is not set, option: 'lazygit_config_file_path' is missing")
   end
 
   -- any issue with the config file we fallback to the default config file path
@@ -97,9 +82,9 @@ local function lazygit(path)
   -- set path to the root path
   _ = project_root_dir()
 
-  -- print(lazygitgetconfigpath())
-
-  cmd = cmd .. " -ucf " .. lazygitgetconfigpath()
+  if vim.g.lazygit_use_custom_config_file_path == 1 then
+    cmd = cmd .. " -ucf " .. lazygitgetconfigpath()
+  end
 
   if path == nil then
     if is_symlink() then

@@ -53,7 +53,7 @@ local function lazygitdefaultconfigpath()
   -- check before replacing the following line
   local os = fn.substitute(fn.system('uname'), '\n', '', '')
   if os == 'Darwin' then
-    return '~/Library/Application Support/jesseduffield/lazygit/config.yml'
+    return '~/Library/Application\\ Support/jesseduffield/lazygit/config.yml'
   else
     if string.find(os_name, 'Window') then
         return '%APPDATA%/lazygit/config.yml'

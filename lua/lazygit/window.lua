@@ -56,7 +56,7 @@ local function open_floating_window()
   api.nvim_buf_set_lines(border_buffer, 0, -1, true, border_lines)
   -- create border window
   local border_window = api.nvim_open_win(border_buffer, true, border_opts)
-  vim.cmd('set winhl=Normal:Floating')
+  vim.cmd('set winhl=NormalFloat:Normal')
 
   -- create a unlisted scratch buffer
   if LAZYGIT_BUFFER == nil or vim.fn.bufwinnr(LAZYGIT_BUFFER) == -1 then

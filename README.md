@@ -112,6 +112,24 @@ If you have `neovim-remote` and don't want `lazygit.nvim` to use it, you can dis
 let g:lazygit_use_neovim_remote = 0
 ```
 
+**Using nvim --listen and nvim --server to edit files in same process**
+
+You can use vanilla nvim server to edit files in the same nvim instance when you use `e` inside `lazygit`.
+
+1. You have to start nvim with the `--listen` parameter. An easy way to ensure this is to use an alias:
+```bash
+# ~/.bashrc
+alias vim='nvim --listen /tmp/nvim-server.pipe'
+```
+
+2. You have to modify lazygit to attempt connecting to existing nvim instance on edit:
+```yml
+# ~/.config/jesseduffield/lazygit/config.yml
+os:
+  editCommand: 'nvim'
+  editCommandTemplate: '{{editor}} --server /tmp/nvim-server.pipe --remote-tab "$(pwd)/{{filename}}"'
+```
+
 ### Telescope Plugin
 
 The Telescope plugin is used to track all git repository visited in one nvim session.

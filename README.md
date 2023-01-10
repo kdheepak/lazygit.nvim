@@ -11,8 +11,36 @@ See [akinsho/nvim-toggleterm](https://github.com/akinsho/nvim-toggleterm.lua#cus
 Install using [`vim-plug`](https://github.com/junegunn/vim-plug):
 
 ```vim
-" nvim v0.5.0
+" nvim v0.7.2
 Plug 'kdheepak/lazygit.nvim'
+```
+
+Install using [`packer.nvim`](https://github.com/wbthomason/packer.nvim):
+
+```lua
+-- nvim v0.7.2
+use({
+    "kdheepak/lazygit.nvim",
+    -- optional for floating window border decoration
+    requires = {
+        "nvim-lua/plenary.nvim",
+    },
+})
+```
+
+Install using [`lazy.nvim`](https://github.com/folke/lazy.nvim):
+
+```lua
+-- nvim v0.8.0
+require("lazy").setup({
+    {
+        "kdheepak/lazygit.nvim",
+        -- optional for floating window border decoration
+        dependencies = {
+            "nvim-lua/plenary.nvim",
+        },
+    },
+})
 ```
 
 Feel free to use any plugin manager.
@@ -32,12 +60,23 @@ The following are configuration options and their defaults.
 ```vim
 let g:lazygit_floating_window_winblend = 0 " transparency of floating window
 let g:lazygit_floating_window_scaling_factor = 0.9 " scaling factor for floating window
-let g:lazygit_floating_window_corner_chars = ['╭', '╮', '╰', '╯'] " customize lazygit popup window corner characters
+let g:lazygit_floating_window_chars = ['╭','─', '╮', '│', '╯','─', '╰', '│'] " customize lazygit popup window corner characters
 let g:lazygit_floating_window_use_plenary = 0 " use plenary.nvim to manage floating window if available
 let g:lazygit_use_neovim_remote = 1 " fallback to 0 if neovim-remote is not installed
 
 let g:lazygit_use_custom_config_file_path = 0 " config file path is evaluated if this value is 1
 let g:lazygit_config_file_path = '' " custom config file path
+```
+
+```lua
+vim.g.lazygit_floating_window_winblend = 0 -- transparency of floating window
+vim.g.lazygit_floating_window_scaling_factor = 0.9 -- scaling factor for floating window
+vim.g.lazygit_floating_window_chars = ['╭','─', '╮', '│', '╯','─', '╰', '│'] -- customize lazygit popup window corner characters
+vim.g.lazygit_floating_window_use_plenary = 0 -- use plenary.nvim to manage floating window if available
+vim.g.lazygit_use_neovim_remote = 1 -- fallback to 0 if neovim-remote is not installed
+
+vim.g.lazygit_use_custom_config_file_path = 0 -- config file path is evaluated if this value is 1
+vim.g.lazygit_config_file_path = '' -- custom config file path
 ```
 
 Call `:LazyGit` to start a floating window with `lazygit` in the current working directory.
@@ -138,15 +177,37 @@ Instead, you can open it with telescope.
 
 **How to use**
 
-Install the plugin using:
+Install using [`packer.nvim`](https://github.com/wbthomason/packer.nvim):
 
-```
+```lua
+-- nvim v0.7.2
 use({
-    "nvim-telescope/telescope.nvim",
-    requires = { { "nvim-lua/plenary.nvim" }, { "kdheepak/lazygit.nvim" } },
+    "kdheepak/lazygit.nvim",
+    requires = {
+        "nvim-telescope/telescope.nvim",
+        "nvim-lua/plenary.nvim",
+    },
     config = function()
         require("telescope").load_extension("lazygit")
     end,
+})
+```
+
+Install using [`lazy.nvim`](https://github.com/folke/lazy.nvim):
+
+```lua
+-- nvim v0.8.0
+require("lazy").setup({
+    {
+        "kdheepak/lazygit.nvim",
+        dependencies =  {
+            "nvim-telescope/telescope.nvim",
+            "nvim-lua/plenary.nvim"
+        },
+        config = function()
+            require("telescope").load_extension("lazygit")
+        end,
+    },
 })
 ```
 
@@ -172,3 +233,10 @@ Once you have loaded the extension, you can invoke the plugin using:
 ```lua
 lua require("telescope").extensions.lazygit.lazygit()
 ```
+
+### Highlighting groups
+
+| Highlight Group   | Default Group | Description                              |
+| ------------------| --------------| -----------------------------------------|
+| **LazyGitFloat**  | **_Normal_**  | Float terminal foreground and background |
+| **LazyGitBorder** | **_Normal_**  | Float terminal border                    |

@@ -19,8 +19,8 @@ if !exists('g:lazygit_use_neovim_remote')
   let g:lazygit_use_neovim_remote = executable('nvr') ? 1 : 0
 endif
 
-if !exists('g:lazygit_floating_window_corner_chars')
-  let g:lazygit_floating_window_corner_chars = ['╭', '╮', '╰', '╯']
+if !exists('g:lazygit_floating_window_chars')
+  let g:lazygit_floating_window_corner_chars = ['╭','─', '╮', '│', '╯','─', '╰', '│']
 endif
 
 " if lazygit_use_custom_config_file_path is set to 1 the

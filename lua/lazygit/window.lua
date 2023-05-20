@@ -34,7 +34,7 @@ local function open_floating_window()
   local opts = { style = 'minimal', relative = 'editor', row = row, col = col, width = width, height = height }
 
   local topleft, top, topright, right, botright, bot, botleft, left
-  local window_chars = vim.g.lazygit_floating_window_chars
+  local window_chars = vim.g.lazygit_floating_window_border_chars
   if type(window_chars) == 'table' and #window_chars == 8 then
     topleft, top, topright, right, botright, bot, botleft, left = unpack(window_chars)
   else

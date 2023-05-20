@@ -19,8 +19,17 @@ if !exists('g:lazygit_use_neovim_remote')
   let g:lazygit_use_neovim_remote = executable('nvr') ? 1 : 0
 endif
 
-if !exists('g:lazygit_floating_window_corner_chars')
-  let g:lazygit_floating_window_corner_chars = ['╭', '╮', '╰', '╯']
+if exists('g:lazygit_floating_window_corner_chars')
+  echohl WarningMsg
+  echomsg "`g:lazygit_floating_window_corner_chars` is deprecated. Please use `g:lazygit_floating_window_border_chars` instead."
+  echohl None
+  if !exists('g:lazygit_floating_window_border_chars')
+    let g:lazygit_floating_window_border_chars = g:lazygit_floating_window_corner_chars
+  endif
+endif
+
+if !exists('g:lazygit_floating_window_border_chars')
+  let g:lazygit_floating_window_border_chars = ['╭','─', '╮', '│', '╯','─', '╰', '│']
 endif
 
 " if lazygit_use_custom_config_file_path is set to 1 the

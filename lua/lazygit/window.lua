@@ -1,6 +1,5 @@
 local api = vim.api
 
-
 --- open floating window with nice borders
 local function open_floating_window()
   local floating_window_scaling_factor = vim.g.lazygit_floating_window_scaling_factor
@@ -34,20 +33,20 @@ local function open_floating_window()
 
   local opts = { style = 'minimal', relative = 'editor', row = row, col = col, width = width, height = height }
 
-  local topleft, topright, botleft, botright
-  local corner_chars = vim.g.lazygit_floating_window_corner_chars
-  if type(corner_chars) == 'table' and #corner_chars == 4 then
-    topleft, topright, botleft, botright = unpack(corner_chars)
+  local topleft, top, topright, right, botright, bot, botleft, left
+  local window_chars = vim.g.lazygit_floating_window_border_chars
+  if type(window_chars) == 'table' and #window_chars == 8 then
+    topleft, top, topright, right, botright, bot, botleft, left = unpack(window_chars)
   else
-    topleft, topright, botleft, botright = '╭', '╮', '╰', '╯'
+    topleft, top, topright, right, botright, bot, botleft, left = '╭','─', '╮', '│', '╯','─', '╰', '│'
   end
 
-  local border_lines = { topleft .. string.rep('─', width) .. topright }
-  local middle_line = '│' .. string.rep(' ', width) .. '│'
-  for i = 1, height do
+  local border_lines = { topleft .. string.rep(top, width) .. topright }
+  local middle_line = left .. string.rep(' ', width) .. right
+  for _ = 1, height do
     table.insert(border_lines, middle_line)
   end
-  table.insert(border_lines, botleft .. string.rep('─', width) .. botright)
+  table.insert(border_lines, botleft .. string.rep(bot, width) .. botright)
 
   -- create a unlisted scratch buffer for the border
   local border_buffer = api.nvim_create_buf(false, true)
@@ -56,7 +55,8 @@ local function open_floating_window()
   api.nvim_buf_set_lines(border_buffer, 0, -1, true, border_lines)
   -- create border window
   local border_window = api.nvim_open_win(border_buffer, true, border_opts)
-  vim.cmd('set winhl=NormalFloat:Normal')
+  vim.api.nvim_set_hl(0, "LazyGitBorder", { link = "Normal", default = true })
+  vim.cmd('set winhl=NormalFloat:LazyGitBorder')
 
   -- create a unlisted scratch buffer
   if LAZYGIT_BUFFER == nil or vim.fn.bufwinnr(LAZYGIT_BUFFER) == -1 then
@@ -71,6 +71,8 @@ local function open_floating_window()
 
   vim.cmd('setlocal bufhidden=hide')
   vim.cmd('setlocal nocursorcolumn')
+  vim.api.nvim_set_hl(0, "LazyGitFloat", { link = "Normal", default = true })
+  vim.cmd('setlocal winhl=NormalFloat:LazyGitFloat')
   vim.cmd('set winblend=' .. vim.g.lazygit_floating_window_winblend)
 
   -- use autocommand to ensure that the border_buffer closes at the same time as the main buffer

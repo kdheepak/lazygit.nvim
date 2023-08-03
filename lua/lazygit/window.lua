@@ -81,7 +81,7 @@ local function open_floating_window()
   cmd = [[autocmd WinLeave <buffer> silent! execute 'silent bdelete! %s']]
   vim.cmd(cmd:format(border_buffer))
 
-  return win, border_window
+  return win, LAZYGIT_BUFFER
 end
 
 return {

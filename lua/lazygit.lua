@@ -3,6 +3,7 @@ local project_root_dir = require("lazygit.utils").project_root_dir
 local get_root = require("lazygit.utils").get_root
 local is_lazygit_available = require("lazygit.utils").is_lazygit_available
 local is_symlink = require("lazygit.utils").is_symlink
+local open_or_create_config = require("lazygit.utils").open_or_create_config
 
 local fn = vim.fn
 
@@ -47,23 +48,33 @@ local function exec_lazygit_command(cmd)
 end
 
 local function lazygitdefaultconfigpath()
-  return fn.substitute(fn.system("lazygit -cd"), "\n", "", "")
+  -- lazygit -cd gives only the config dir, not the config file, so concat config.yml
+  return fn.substitute(fn.system("lazygit -cd"), "\n", "", "") .. "/config.yml"
 end
 
 local function lazygitgetconfigpath()
+  local default_config_path = lazygitdefaultconfigpath()
+  -- if vim.g.lazygit_config_file_path is a table, check if all config files exist
   if vim.g.lazygit_config_file_path then
-    -- if file exists
-    if fn.empty(fn.glob(vim.g.lazygit_config_file_path)) == 0 then
+    if type(vim.g.lazygit_config_file_path) == "table" then
+      for _, config_file in ipairs(vim.g.lazygit_config_file_path) do
+        if fn.empty(fn.glob(config_file)) == 1 then
+          print("lazygit: custom config file path: '" .. config_file .. "' could not be found. Returning default config")
+          return default_config_path
+        end
+      end
       return vim.g.lazygit_config_file_path
+    elseif fn.empty(fn.glob(vim.g.lazygit_config_file_path)) == 0 then
+      return vim.g.lazygit_config_file_path
+    else
+      print("lazygit: custom config file path: '" .. vim.g.lazygit_config_file_path .. "' could not be found. Returning default config")
+      return default_config_path
     end
-
-    print("lazygit: custom config file path: '" .. vim.g.lazygit_config_file_path .. "' could not be found")
   else
     print("lazygit: custom config file path is not set, option: 'lazygit_config_file_path' is missing")
+    -- any issue with the config file we fallback to the default config file path
+    return default_config_path
   end
-
-  -- any issue with the config file we fallback to the default config file path
-  return lazygitdefaultconfigpath()
 end
 
 --- :LazyGit entry point
@@ -83,7 +94,11 @@ local function lazygit(path)
   _ = project_root_dir()
 
   if vim.g.lazygit_use_custom_config_file_path == 1 then
-    cmd = cmd .. " -ucf " .. lazygitgetconfigpath()
+    local config_path = lazygitgetconfigpath()
+    if type(config_path) == "table" then
+     config_path = table.concat(config_path, ",")
+    end
+    cmd = cmd .. " -ucf '" .. config_path .. "'" -- quote config_path to avoid whitespace errors
   end
 
   if path == nil then
@@ -131,28 +146,18 @@ end
 local function lazygitconfig()
   local config_file = lazygitgetconfigpath()
 
-  if fn.empty(fn.glob(config_file)) == 1 then
-    -- file does not exist
-    -- check if user wants to create it
-    local answer = fn.confirm(
-      "File "
-        .. config_file
-        .. " does not exist.\nDo you want to create the file and populate it with the default configuration?",
-      "&Yes\n&No"
+  if type(config_file) == "table" then
+    vim.ui.select(
+      config_file,
+      { prompt = "select config file to edit" },
+      function (path)
+        open_or_create_config(path)
+      end
     )
-    if answer == 2 then
-      return nil
-    end
-    if fn.isdirectory(fn.fnamemodify(config_file, ":h")) == false then
-      -- directory does not exist
-      fn.mkdir(fn.fnamemodify(config_file, ":h"), "p")
-    end
-    vim.cmd("edit " .. config_file)
-    vim.cmd([[execute "silent! 0read !lazygit -c"]])
-    vim.cmd([[execute "normal 1G"]])
   else
-    vim.cmd("edit " .. config_file)
+    open_or_create_config(config_file)
   end
+
 end
 
 return {

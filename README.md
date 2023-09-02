@@ -66,6 +66,8 @@ let g:lazygit_use_neovim_remote = 1 " fallback to 0 if neovim-remote is not inst
 
 let g:lazygit_use_custom_config_file_path = 0 " config file path is evaluated if this value is 1
 let g:lazygit_config_file_path = '' " custom config file path
+" OR
+let g:lazygit_config_file_path = [] " list of custom config file paths
 ```
 
 ```lua
@@ -77,6 +79,8 @@ vim.g.lazygit_use_neovim_remote = 1 -- fallback to 0 if neovim-remote is not ins
 
 vim.g.lazygit_use_custom_config_file_path = 0 -- config file path is evaluated if this value is 1
 vim.g.lazygit_config_file_path = '' -- custom config file path
+-- OR
+vim.g.lazygit_config_file_path = {} -- table of custom config file paths
 ```
 
 Call `:LazyGit` to start a floating window with `lazygit` in the current working directory.

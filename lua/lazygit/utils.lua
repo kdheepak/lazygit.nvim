@@ -91,6 +91,30 @@ local function is_symlink()
   return resolved ~= fn.expand('%:p')
 end
 
+local function open_or_create_config(path)
+  if fn.empty(fn.glob(path)) == 1 then
+    -- file does not exist
+    -- check if user wants to create it
+    local answer = fn.confirm(
+      "File "
+        .. path
+        .. " does not exist.\nDo you want to create the file and populate it with the default configuration?",
+      "&Yes\n&No"
+    )
+    if answer == 2 then
+      return nil
+    end
+    if fn.isdirectory(fn.fnamemodify(path, ":h")) == false then
+      -- directory does not exist
+      fn.mkdir(fn.fnamemodify(path, ":h"), "p")
+    end
+    vim.cmd("edit " .. path)
+    vim.cmd([[execute "silent! 0read !lazygit -c"]])
+    vim.cmd([[execute "normal 1G"]])
+  else
+    vim.cmd("edit " .. path)
+  end
+end
 
 return {
   get_root = get_root,
@@ -98,4 +122,5 @@ return {
   lazygit_visited_git_repos = lazygit_visited_git_repos,
   is_lazygit_available = is_lazygit_available,
   is_symlink = is_symlink,
+  open_or_create_config = open_or_create_config,
 }

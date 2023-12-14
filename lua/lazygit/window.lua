@@ -12,7 +12,7 @@ local function open_floating_window()
 
   local status, plenary = pcall(require, 'plenary.window.float')
   if status and vim.g.lazygit_floating_window_use_plenary and vim.g.lazygit_floating_window_use_plenary ~= 0 then
-    local ret = plenary.percentage_range_window(floating_window_scaling_factor, floating_window_scaling_factor)
+    local ret = plenary.percentage_range_window(floating_window_scaling_factor, floating_window_scaling_factor, {winblend=vim.g.lazygit_floating_window_winblend})
     return ret.win_id, ret.bufnr
   end
 

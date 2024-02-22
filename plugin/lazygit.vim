@@ -34,9 +34,13 @@ endif
 
 " if lazygit_use_custom_config_file_path is set to 1 the
 " lazygit_config_file_path option will be evaluated
-let g:lazygit_use_custom_config_file_path = 0
+if !exists('g:lazygit_use_custom_config_file_path')
+  let g:lazygit_use_custom_config_file_path = 0
+endif
 " path to custom config file
-let g:lazygit_config_file_path = ''
+if !exists('g:lazygit_config_file_path')
+  let g:lazygit_config_file_path = ''
+endif
 
 command! LazyGit lua require'lazygit'.lazygit()
 

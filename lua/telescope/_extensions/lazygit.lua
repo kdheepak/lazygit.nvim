@@ -4,90 +4,76 @@ local actions = require("telescope.actions")
 local action_state = require("telescope.actions.state")
 local conf = require("telescope.config").values
 local lazygit_utils = require("lazygit.utils")
+local entry_display = require("telescope.pickers.entry_display")
 
-
-local function open_lazygit(prompt_buf)
+local function open_lazygit()
     local entry = action_state.get_selected_entry()
-    vim.fn.execute('cd ' .. entry.value)
-
-    local cmd = [[lua require"lazygit".lazygit(nil)]]
-    vim.api.nvim_command(cmd)
-
-    vim.cmd('stopinsert')
-    vim.cmd([[execute "normal i"]])
-    vim.fn.feedkeys('j')
-    vim.api.nvim_buf_set_keymap(0, 't', '<Esc>', '<Esc>', {noremap = true, silent = true})
+    vim.cmd('cd ' .. vim.fn.fnameescape(entry.value))
+    require("lazygit").lazygit(nil)
+    vim.cmd('stopinsert | startinsert')
 end
 
-
-local lazygit_repos = function(opts)
-    local displayer = require("telescope.pickers.entry_display").create {
+local function make_entry_display(opts)
+    return entry_display.create {
         separator = "",
-        -- TODO: make use of telescope geometry
         items = {
-            {width = 4},
-            {width = 55},
+            {width = 4}, -- index width
+            {width = opts.width_repo_name or 55}, -- repo name width
             {remaining = true},
         },
     }
+end
 
-    local repos = {}
-    for _, v in pairs(lazygit_utils.lazygit_visited_git_repos) do
-        if v == nil then
-            goto skip
+local function make_entry_maker(displayer)
+    return function(entry)
+        local display = function(e)
+            return displayer {
+                {e.idx},
+                {e.repo_name},
+            }
         end
 
-        local index = #repos + 1
-        local entry =
-        {
-            idx = index,
-            value = v:gsub("%s", ""),
-            -- retrieve git repo name
-            repo_name= v:gsub("%s", ""):match("^.+/(.+)$"),
+        return {
+            value = entry.value,
+            ordinal = string.format("%s %s", entry.idx, entry.repo_name),
+            display = display,
         }
+    end
+end
 
-        table.insert(repos, index, entry)
+local function lazygit_repos(opts)
+    opts = opts or {}
+    local displayer = make_entry_display(opts)
 
-        ::skip::
+    local repos = {}
+    for i, v in ipairs(lazygit_utils.lazygit_visited_git_repos or {}) do
+        local repo_name = v:match("^.+/(.+)$")
+        if repo_name then
+            table.insert(repos, {
+                idx = i,
+                value = v,
+                repo_name = repo_name,
+            })
+        end
     end
 
-    pickers.new(opts or {}, {
+    pickers.new(opts, {
         prompt_title = "lazygit repos",
         finder = finders.new_table {
             results = repos,
-            entry_maker = function(entry)
-                local make_display = function()
-                    return displayer
-                    {
-                        {entry.idx},
-                        {entry.repo_name},
-                    }
-                end
-
-                return {
-                    value = entry.value,
-                    ordinal = string.format("%s %s", entry.idx, entry.repo_name),
-                    display = make_display,
-                }
-            end,
+            entry_maker = make_entry_maker(displayer),
         },
         sorter = conf.generic_sorter(opts),
         attach_mappings = function(prompt_buf, _)
-            actions.select_default:replace(function ()
-                    -- for what ever reason any attempt to open an external window (such as lazygit)
-                    -- shall be done after closing the buffer manually
-                    actions.close(prompt_buf)
-
-                    open_lazygit()
-                end
-            )
+            actions.select_default:replace(function()
+                actions.close(prompt_buf)
+                open_lazygit()
+            end)
             return true
-        end
+        end,
     }):find()
 end
 
 return require("telescope").register_extension({
-    exports = {
-        lazygit = lazygit_repos,
-    }
+    exports = {lazygit = lazygit_repos}
 })

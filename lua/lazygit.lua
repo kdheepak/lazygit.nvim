@@ -1,170 +1,100 @@
-local open_floating_window = require("lazygit.window").open_floating_window
-local project_root_dir = require("lazygit.utils").project_root_dir
-local get_root = require("lazygit.utils").get_root
-local is_lazygit_available = require("lazygit.utils").is_lazygit_available
-local is_symlink = require("lazygit.utils").is_symlink
-local open_or_create_config = require("lazygit.utils").open_or_create_config
+local utils = require("lazygit.utils")
+local window = require("lazygit.window")
 
-local fn = vim.fn
+local vim_fn = vim.fn
+local api = vim.api
+local cmd = vim.cmd
 
-LAZYGIT_BUFFER = nil
-LAZYGIT_LOADED = false
-vim.g.lazygit_opened = 0
-local prev_win = -1
-local win = -1
-local buffer = -1
+local LAZYGIT = {
+  buffer = nil,
+  loaded = false,
+  opened = vim.g.lazygit_opened or 0,
+  prev_win = -1,
+  win = -1
+}
 
---- on_exit callback function to delete the open buffer when lazygit exits in a neovim terminal
-local function on_exit(job_id, code, event)
-  if code ~= 0 then
+local function on_exit(code)
+  if code ~= 0 then return end
+
+  LAZYGIT = {buffer = nil, loaded = false, opened = 0, prev_win = -1, win = -1}
+  cmd("silent! :checktime")
+
+  if api.nvim_win_is_valid(LAZYGIT.prev_win) then
+    api.nvim_win_close(LAZYGIT.win, true)
+    api.nvim_set_current_win(LAZYGIT.prev_win)
+    if api.nvim_buf_is_valid(LAZYGIT.buffer) and api.nvim_buf_is_loaded(LAZYGIT.buffer) then
+      api.nvim_buf_delete(LAZYGIT.buffer, {force = true})
+    end
+  end
+end
+
+local function termopen_with_exit(cmd)
+  if not LAZYGIT.loaded then
+    LAZYGIT.opened = 1
+    vim_fn.termopen(cmd, {on_exit = on_exit})
+    cmd("startinsert")
+  end
+end
+
+local function get_config_path()
+  local default_path = utils.lazygit_default_config_path()
+  local config_path = utils.resolve_config_path(vim.g.lazygit_config_file_path)
+  if config_path then return config_path end
+  print("Using default config path: " .. default_path)
+  return default_path
+end
+
+local function exec_lazygit(cmd, path)
+  if not utils.is_lazygit_available() then
+    print("Please install lazygit. Check documentation for more information.")
     return
   end
 
-  LAZYGIT_BUFFER = nil
-  LAZYGIT_LOADED = false
-  vim.g.lazygit_opened = 0
-  vim.cmd("silent! :checktime")
+  LAZYGIT.prev_win = api.nvim_get_current_win()
+  LAZYGIT.win, LAZYGIT.buffer = window.open_floating_window()
 
-  if vim.api.nvim_win_is_valid(prev_win) then
-    vim.api.nvim_win_close(win, true)
-    vim.api.nvim_set_current_win(prev_win)
-    prev_win = -1
-    if vim.api.nvim_buf_is_valid(buffer) and vim.api.nvim_buf_is_loaded(buffer) then
-      vim.api.nvim_buf_delete(buffer, { force = true })
-    end
-    buffer = -1
-    win = -1
+  local config_path = vim.g.lazygit_use_custom_config_file_path == 1 and get_config_path() or ""
+  if config_path ~= "" then
+    cmd = string.format("%s -ucf '%s'", cmd, config_path)
   end
-end
 
---- Call lazygit
-local function exec_lazygit_command(cmd)
-  if LAZYGIT_LOADED == false then
-    -- ensure that the buffer is closed on exit
-    vim.g.lazygit_opened = 1
-    vim.fn.termopen(cmd, { on_exit = on_exit })
+  if path and vim_fn.isdirectory(path) == 1 then
+    cmd = string.format("%s -p %s", cmd, path)
   end
-  vim.cmd("startinsert")
+
+  termopen_with_exit(cmd)
 end
 
-local function lazygitdefaultconfigpath()
-  -- lazygit -cd gives only the config dir, not the config file, so concat config.yml
-  return fn.substitute(fn.system("lazygit -cd"), "\n", "", "") .. "/config.yml"
-end
-
-local function lazygitgetconfigpath()
-  local default_config_path = lazygitdefaultconfigpath()
-  -- if vim.g.lazygit_config_file_path is a table, check if all config files exist
-  if vim.g.lazygit_config_file_path then
-    if type(vim.g.lazygit_config_file_path) == "table" then
-      for _, config_file in ipairs(vim.g.lazygit_config_file_path) do
-        if fn.empty(fn.glob(config_file)) == 1 then
-          print("lazygit: custom config file path: '" .. config_file .. "' could not be found. Returning default config")
-          return default_config_path
-        end
-      end
-      return vim.g.lazygit_config_file_path
-    elseif fn.empty(fn.glob(vim.g.lazygit_config_file_path)) == 0 then
-      return vim.g.lazygit_config_file_path
-    else
-      print("lazygit: custom config file path: '" .. vim.g.lazygit_config_file_path .. "' could not be found. Returning default config")
-      return default_config_path
-    end
-  else
-    print("lazygit: custom config file path is not set, option: 'lazygit_config_file_path' is missing")
-    -- any issue with the config file we fallback to the default config file path
-    return default_config_path
-  end
-end
-
---- :LazyGit entry point
 local function lazygit(path)
-  if is_lazygit_available() ~= true then
-    print("Please install lazygit. Check documentation for more information")
-    return
-  end
-
-  prev_win = vim.api.nvim_get_current_win()
-
-  win, buffer = open_floating_window()
-
-  local cmd = "lazygit"
-
-  -- set path to the root path
-  _ = project_root_dir()
-
-  if vim.g.lazygit_use_custom_config_file_path == 1 then
-    local config_path = lazygitgetconfigpath()
-    if type(config_path) == "table" then
-     config_path = table.concat(config_path, ",")
-    end
-    cmd = cmd .. " -ucf '" .. config_path .. "'" -- quote config_path to avoid whitespace errors
-  end
-
-  if path == nil then
-    if is_symlink() then
-      path = project_root_dir()
-    end
-  else
-    if fn.isdirectory(path) then
-      cmd = cmd .. " -p " .. path
-    end
-  end
-
-  exec_lazygit_command(cmd)
+  path = path or utils.resolve_project_path()
+  exec_lazygit("lazygit", path)
 end
 
---- :LazyGitCurrentFile entry point
-local function lazygitcurrentfile()
-  local current_dir = vim.fn.expand("%:p:h")
-  local git_root = get_root(current_dir)
-  lazygit(git_root)
+local function lazygit_current_file()
+  local path = utils.get_git_root(vim_fn.expand("%:p:h"))
+  lazygit(path)
 end
 
---- :LazyGitFilter entry point
-local function lazygitfilter(path)
-  if is_lazygit_available() ~= true then
-    print("Please install lazygit. Check documentation for more information")
-    return
-  end
-  if path == nil then
-    path = project_root_dir()
-  end
-  prev_win = vim.api.nvim_get_current_win()
-  win, buffer = open_floating_window()
-  local cmd = "lazygit " .. "-f " .. path
-  exec_lazygit_command(cmd)
+local function lazygit_filter(path)
+  path = path or utils.project_root_dir()
+  exec_lazygit("lazygit -f", path)
 end
 
---- :LazyGitFilterCurrentFile entry point
-local function lazygitfiltercurrentfile()
-  local current_file = vim.fn.expand("%")
-  lazygitfilter(current_file)
+local function lazygit_filter_current_file()
+  local path = vim_fn.expand("%")
+  lazygit_filter(path)
 end
 
---- :LazyGitConfig entry point
-local function lazygitconfig()
-  local config_file = lazygitgetconfigpath()
-
-  if type(config_file) == "table" then
-    vim.ui.select(
-      config_file,
-      { prompt = "select config file to edit" },
-      function (path)
-        open_or_create_config(path)
-      end
-    )
-  else
-    open_or_create_config(config_file)
-  end
-
+local function lazygit_config()
+  local config_file = get_config_path()
+  utils.open_or_create_config(config_file)
 end
 
 return {
   lazygit = lazygit,
-  lazygitcurrentfile = lazygitcurrentfile,
-  lazygitfilter = lazygitfilter,
-  lazygitfiltercurrentfile = lazygitfiltercurrentfile,
-  lazygitconfig = lazygitconfig,
-  project_root_dir = project_root_dir,
+  lazygitcurrentfile = lazygit_current_file,
+  lazygitfilter = lazygit_filter,
+  lazygitfiltercurrentfile = lazygit_filter_current_file,
+  lazygitconfig = lazygit_config,
+  project_root_dir = utils.project_root_dir,
 }

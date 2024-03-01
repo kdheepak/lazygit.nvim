@@ -35,6 +35,13 @@ Install using [`lazy.nvim`](https://github.com/folke/lazy.nvim):
 require("lazy").setup({
     {
         "kdheepak/lazygit.nvim",
+    	cmd = {
+    		"LazyGit",
+    		"LazyGitConfig",
+    		"LazyGitCurrentFile",
+    		"LazyGitFilter",
+    		"LazyGitFilterCurrentFile",
+    	},
         -- optional for floating window border decoration
         dependencies = {
             "nvim-lua/plenary.nvim",

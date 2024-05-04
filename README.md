@@ -231,18 +231,20 @@ Install using [`lazy.nvim`](https://github.com/folke/lazy.nvim):
 
 ```lua
 -- nvim v0.8.0
-require("lazy").setup({
-    {
-        "kdheepak/lazygit.nvim",
-        dependencies =  {
-            "nvim-telescope/telescope.nvim",
-            "nvim-lua/plenary.nvim"
-        },
-        config = function()
-            require("telescope").load_extension("lazygit")
-        end,
+  {
+    "kdheepak/lazygit.nvim",
+    lazy = false,
+    cmd = {
+      "LazyGit",
+      "LazyGitConfig",
+      "LazyGitCurrentFile",
+      "LazyGitFilter",
+      "LazyGitFilterCurrentFile",
     },
-})
+    -- optional for floating window border decoration
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+    },
 ```
 
 Lazy loading `lazygit.nvim` for telescope functionality is not supported. Open an issue if you wish to have this feature.

@@ -64,6 +64,8 @@ local function open_floating_window()
   else
     LAZYGIT_LOADED = true
   end
+
+  vim.cmd('setlocal signcolumn=no')
   -- create file window, enter the window, and use the options defined in opts
   local win = api.nvim_open_win(LAZYGIT_BUFFER, true, opts)
 
@@ -71,6 +73,7 @@ local function open_floating_window()
 
   vim.cmd('setlocal bufhidden=hide')
   vim.cmd('setlocal nocursorcolumn')
+  vim.cmd('setlocal signcolumn=no')
   vim.api.nvim_set_hl(0, "LazyGitFloat", { link = "Normal", default = true })
   vim.cmd('setlocal winhl=NormalFloat:LazyGitFloat')
   vim.cmd('set winblend=' .. vim.g.lazygit_floating_window_winblend)

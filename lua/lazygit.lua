@@ -138,8 +138,11 @@ end
 
 --- :LazyGitFilterCurrentFile entry point
 local function lazygitfiltercurrentfile()
-  local current_file = vim.fn.expand("%")
-  lazygitfilter(current_file)
+  local current_dir = vim.fn.expand("%:p:h")
+  local git_root = get_root(current_dir)
+  local file_path = vim.fn.expand('%:p')
+  local relative_path = string.sub(file_path, #git_root + 2)
+  lazygitfilter(relative_path)
 end
 
 --- :LazyGitConfig entry point

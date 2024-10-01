@@ -132,7 +132,7 @@ local function lazygitfilter(path)
   end
   prev_win = vim.api.nvim_get_current_win()
   win, buffer = open_floating_window()
-  local cmd = "lazygit " .. "-f " .. path
+  local cmd = "lazygit " .. "-f " .. "'" .. path .. "'"
   exec_lazygit_command(cmd)
 end
 

@@ -132,14 +132,17 @@ local function lazygitfilter(path)
   end
   prev_win = vim.api.nvim_get_current_win()
   win, buffer = open_floating_window()
-  local cmd = "lazygit " .. "-f " .. path
+  local cmd = "lazygit " .. "-f " .. "'" .. path .. "'"
   exec_lazygit_command(cmd)
 end
 
 --- :LazyGitFilterCurrentFile entry point
 local function lazygitfiltercurrentfile()
-  local current_file = vim.fn.expand("%")
-  lazygitfilter(current_file)
+  local current_dir = vim.fn.expand("%:p:h")
+  local git_root = get_root(current_dir)
+  local file_path = vim.fn.expand('%:p')
+  local relative_path = string.sub(file_path, #git_root + 2)
+  lazygitfilter(relative_path)
 end
 
 --- :LazyGitConfig entry point

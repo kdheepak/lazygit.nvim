@@ -32,7 +32,7 @@ Install using [`lazy.nvim`](https://github.com/folke/lazy.nvim):
 
 ```lua
 -- nvim v0.8.0
-{
+return {
     "kdheepak/lazygit.nvim",
     lazy = true,
     cmd = {
@@ -187,9 +187,6 @@ os:
 ### Telescope Plugin
 
 The Telescope plugin is used to track all git repository visited in one nvim session.
-
-![lazygittelplugin](https://user-images.githubusercontent.com/10464534/156933468-c89abee4-6afb-457c-8b02-55b67913aef2.png)
-(background image is not included :smirk:)
 
 **Why a telescope Plugin** ?
 

@@ -101,7 +101,9 @@ local function lazygit(path)
     cmd = cmd .. " -ucf '" .. config_path .. "'" -- quote config_path to avoid whitespace errors
   end
 
-  if path == nil then
+  if vim.env.GIT_DIR ~= nil and vim.env.GIT_WORK_TREE ~= nil then
+    cmd = cmd .. " -w " .. vim.env.GIT_WORK_TREE .. " -g " .. vim.env.GIT_DIR
+  elseif path == nil then
     if is_symlink() then
       path = project_root_dir()
     end

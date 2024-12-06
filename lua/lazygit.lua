@@ -35,6 +35,10 @@ local function on_exit(job_id, code, event)
     buffer = -1
     win = -1
   end
+
+  if vim.g.lazygit_on_exit_callback ~= nil then
+    vim.g.lazygit_on_exit_callback()
+  end
 end
 
 --- Call lazygit

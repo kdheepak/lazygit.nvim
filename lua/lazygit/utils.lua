@@ -48,10 +48,13 @@ end
 
 --- Get project_root_dir for git repository
 local function project_root_dir()
-  -- always use bash on Unix based systems.
   local oldshell = vim.o.shell
   if vim.fn.has('win32') == 0 then
+    -- always use bash on Unix based systems.
     vim.o.shell = 'bash'
+  else
+    -- always use cmd on Windows systems.
+    vim.o.shell = 'cmd'
   end
 
   local cwd = vim.loop.cwd()

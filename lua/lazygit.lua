@@ -138,8 +138,13 @@ local function lazygitfilter(path)
   end
   prev_win = vim.api.nvim_get_current_win()
   win, buffer = open_floating_window()
-  local cmd = "lazygit " .. "-f " .. "'" .. path .. "'"
-  exec_lazygit_command(cmd)
+  if vim.loop.os_uname().sysname == "Windows_NT" then
+    local cmd = "lazygit " .. "-f " .. '"' .. path .. '"'
+    exec_lazygit_command(cmd)
+  else
+    local cmd = "lazygit " .. "-f " .. "'" .. path .. "'"
+    exec_lazygit_command(cmd)
+  end
 end
 
 --- :LazyGitFilterCurrentFile entry point

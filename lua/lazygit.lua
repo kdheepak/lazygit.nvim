@@ -63,7 +63,9 @@ local function lazygitgetconfigpath()
     if type(vim.g.lazygit_config_file_path) == "table" then
       for _, config_file in ipairs(vim.g.lazygit_config_file_path) do
         if fn.empty(fn.glob(config_file)) == 1 then
-          print("lazygit: custom config file path: '" .. config_file .. "' could not be found. Returning default config")
+          print(
+            "lazygit: custom config file path: '" .. config_file .. "' could not be found. Returning default config"
+          )
           return default_config_path
         end
       end
@@ -71,7 +73,11 @@ local function lazygitgetconfigpath()
     elseif fn.empty(fn.glob(vim.g.lazygit_config_file_path)) == 0 then
       return vim.g.lazygit_config_file_path
     else
-      print("lazygit: custom config file path: '" .. vim.g.lazygit_config_file_path .. "' could not be found. Returning default config")
+      print(
+        "lazygit: custom config file path: '"
+          .. vim.g.lazygit_config_file_path
+          .. "' could not be found. Returning default config"
+      )
       return default_config_path
     end
   else
@@ -79,6 +85,45 @@ local function lazygitgetconfigpath()
     -- any issue with the config file we fallback to the default config file path
     return default_config_path
   end
+end
+
+--- :LazyGitLog entry point
+local function lazygitlog(path)
+  if is_lazygit_available() ~= true then
+    print("Please install lazygit. Check documentation for more information")
+    return
+  end
+
+  prev_win = vim.api.nvim_get_current_win()
+
+  win, buffer = open_floating_window()
+
+  local cmd = "lazygit log"
+
+  -- set path to the root path
+  _ = project_root_dir()
+
+  if vim.g.lazygit_use_custom_config_file_path == 1 then
+    local config_path = lazygitgetconfigpath()
+    if type(config_path) == "table" then
+      config_path = table.concat(config_path, ",")
+    end
+    cmd = cmd .. " -ucf '" .. config_path .. "'" -- quote config_path to avoid whitespace errors
+  end
+
+  if vim.env.GIT_DIR ~= nil and vim.env.GIT_WORK_TREE ~= nil then
+    cmd = cmd .. " -w " .. vim.env.GIT_WORK_TREE .. " -g " .. vim.env.GIT_DIR
+  elseif path == nil then
+    if is_symlink() then
+      path = project_root_dir()
+    end
+  else
+    if fn.isdirectory(path) then
+      cmd = cmd .. " -p " .. path
+    end
+  end
+
+  exec_lazygit_command(cmd)
 end
 
 --- :LazyGit entry point
@@ -100,7 +145,7 @@ local function lazygit(path)
   if vim.g.lazygit_use_custom_config_file_path == 1 then
     local config_path = lazygitgetconfigpath()
     if type(config_path) == "table" then
-     config_path = table.concat(config_path, ",")
+      config_path = table.concat(config_path, ",")
     end
     cmd = cmd .. " -ucf '" .. config_path .. "'" -- quote config_path to avoid whitespace errors
   end
@@ -146,7 +191,7 @@ end
 local function lazygitfiltercurrentfile()
   local current_dir = vim.fn.expand("%:p:h")
   local git_root = get_root(current_dir)
-  local file_path = vim.fn.expand('%:p')
+  local file_path = vim.fn.expand("%:p")
   local relative_path = string.sub(file_path, #git_root + 2)
   lazygitfilter(relative_path)
 end
@@ -156,21 +201,17 @@ local function lazygitconfig()
   local config_file = lazygitgetconfigpath()
 
   if type(config_file) == "table" then
-    vim.ui.select(
-      config_file,
-      { prompt = "select config file to edit" },
-      function (path)
-        open_or_create_config(path)
-      end
-    )
+    vim.ui.select(config_file, { prompt = "select config file to edit" }, function(path)
+      open_or_create_config(path)
+    end)
   else
     open_or_create_config(config_file)
   end
-
 end
 
 return {
   lazygit = lazygit,
+  lazygitlog = lazygitlog,
   lazygitcurrentfile = lazygitcurrentfile,
   lazygitfilter = lazygitfilter,
   lazygitfiltercurrentfile = lazygitfiltercurrentfile,

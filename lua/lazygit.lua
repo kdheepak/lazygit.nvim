@@ -75,8 +75,8 @@ local function lazygitgetconfigpath()
     else
       print(
         "lazygit: custom config file path: '"
-          .. vim.g.lazygit_config_file_path
-          .. "' could not be found. Returning default config"
+        .. vim.g.lazygit_config_file_path
+        .. "' could not be found. Returning default config"
       )
       return default_config_path
     end
@@ -173,7 +173,7 @@ local function lazygitcurrentfile()
 end
 
 --- :LazyGitFilter entry point
-local function lazygitfilter(path)
+local function lazygitfilter(path, git_root)
   if is_lazygit_available() ~= true then
     print("Please install lazygit. Check documentation for more information")
     return
@@ -183,7 +183,13 @@ local function lazygitfilter(path)
   end
   prev_win = vim.api.nvim_get_current_win()
   win, buffer = open_floating_window()
-  local cmd = "lazygit " .. "-f " .. "'" .. path .. "'"
+
+  local cmd
+  if git_root then
+    cmd = "lazygit " .. "-f " .. "'" .. path .. "' -p '" .. git_root .. "'"
+  else
+    cmd = "lazygit " .. "-f " .. "'" .. path .. "'"
+  end
   exec_lazygit_command(cmd)
 end
 
@@ -193,7 +199,7 @@ local function lazygitfiltercurrentfile()
   local git_root = get_root(current_dir)
   local file_path = vim.fn.expand("%:p")
   local relative_path = string.sub(file_path, #git_root + 2)
-  lazygitfilter(relative_path)
+  lazygitfilter(relative_path, git_root)
 end
 
 --- :LazyGitConfig entry point

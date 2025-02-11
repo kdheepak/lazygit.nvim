@@ -184,11 +184,9 @@ local function lazygitfilter(path, git_root)
   prev_win = vim.api.nvim_get_current_win()
   win, buffer = open_floating_window()
 
-  local cmd
+  local cmd = "lazygit " .. "-f " .. "'" .. path .. "'"
   if git_root then
-    cmd = "lazygit " .. "-f " .. "'" .. path .. "' -p '" .. git_root .. "'"
-  else
-    cmd = "lazygit " .. "-f " .. "'" .. path .. "'"
+    cmd = cmd .. " -p '" .. git_root .. "'"
   end
   exec_lazygit_command(cmd)
 end

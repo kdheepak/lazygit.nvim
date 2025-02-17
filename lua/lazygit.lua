@@ -108,7 +108,7 @@ local function lazygitlog(path)
     if type(config_path) == "table" then
       config_path = table.concat(config_path, ",")
     end
-    cmd = cmd .. " -ucf '" .. config_path .. "'" -- quote config_path to avoid whitespace errors
+    cmd = cmd .. ' -ucf "' .. config_path .. '"' -- quote config_path to avoid whitespace errors
   end
 
   if vim.env.GIT_DIR ~= nil and vim.env.GIT_WORK_TREE ~= nil then
@@ -147,7 +147,7 @@ local function lazygit(path)
     if type(config_path) == "table" then
       config_path = table.concat(config_path, ",")
     end
-    cmd = cmd .. " -ucf '" .. config_path .. "'" -- quote config_path to avoid whitespace errors
+    cmd = cmd .. ' -ucf "' .. config_path .. '"' -- quote config_path to avoid whitespace errors
   end
 
   if vim.env.GIT_DIR ~= nil and vim.env.GIT_WORK_TREE ~= nil then
@@ -184,9 +184,9 @@ local function lazygitfilter(path, git_root)
   prev_win = vim.api.nvim_get_current_win()
   win, buffer = open_floating_window()
 
-  local cmd = "lazygit " .. "-f " .. "'" .. path .. "'"
+  local cmd = "lazygit " .. '-f "' .. path .. '"'
   if git_root then
-    cmd = cmd .. " -p '" .. git_root .. "'"
+    cmd = cmd .. ' -p "' .. git_root .. '"'
   end
   exec_lazygit_command(cmd)
 end

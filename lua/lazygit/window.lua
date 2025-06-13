@@ -1,7 +1,6 @@
 local api = vim.api
 
---- open floating window with nice borders
-local function open_floating_window()
+local function get_window_pos()
   local floating_window_scaling_factor = vim.g.lazygit_floating_window_scaling_factor
 
   -- Why is this required?
@@ -12,15 +11,21 @@ local function open_floating_window()
 
   local status, plenary = pcall(require, 'plenary.window.float')
   if status and vim.g.lazygit_floating_window_use_plenary and vim.g.lazygit_floating_window_use_plenary ~= 0 then
-    local ret = plenary.percentage_range_window(floating_window_scaling_factor, floating_window_scaling_factor, {winblend=vim.g.lazygit_floating_window_winblend})
+    local ret = plenary.percentage_range_window(floating_window_scaling_factor, floating_window_scaling_factor,
+      { winblend = vim.g.lazygit_floating_window_winblend })
     return ret.win_id, ret.bufnr
   end
 
   local height = math.ceil(vim.o.lines * floating_window_scaling_factor) - 1
   local width = math.ceil(vim.o.columns * floating_window_scaling_factor)
-
   local row = math.ceil(vim.o.lines - height) / 2
   local col = math.ceil(vim.o.columns - width) / 2
+  return width, height, row, col
+end
+
+--- open floating window with nice borders
+local function open_floating_window()
+  local width, height, row, col = get_window_pos()
 
   local border_opts = {
     style = 'minimal',
@@ -38,7 +43,7 @@ local function open_floating_window()
   if type(window_chars) == 'table' and #window_chars == 8 then
     topleft, top, topright, right, botright, bot, botleft, left = unpack(window_chars)
   else
-    topleft, top, topright, right, botright, bot, botleft, left = '╭','─', '╮', '│', '╯','─', '╰', '│'
+    topleft, top, topright, right, botright, bot, botleft, left = '╭', '─', '╮', '│', '╯', '─', '╰', '│'
   end
 
   local border_lines = { topleft .. string.rep(top, width) .. topright }
@@ -83,6 +88,20 @@ local function open_floating_window()
   vim.cmd(cmd)
   cmd = [[autocmd WinLeave <buffer> silent! execute 'silent bdelete! %s']]
   vim.cmd(cmd:format(border_buffer))
+  vim.api.nvim_create_autocmd('VimResized', {
+    callback = function()
+      vim.defer_fn(function()
+        if not vim.api.nvim_win_is_valid(border_window) then
+          return
+        end
+        local new_width, new_height, new_row, new_col = get_window_pos()
+        api.nvim_win_set_config(border_window,
+          { width = new_width + 2, height = new_height + 2, relative = 'editor', row = new_row - 1, col = new_col - 1, })
+        api.nvim_win_set_config(win,
+          { width = new_width, height = new_height, relative = 'editor', row = new_row, col = new_col, })
+      end, 20)
+    end
+  })
 
   return win, LAZYGIT_BUFFER
 end

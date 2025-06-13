@@ -57,7 +57,7 @@ local function project_root_dir()
     vim.o.shell = 'cmd'
   end
 
-  local cwd = vim.loop.cwd()
+  local cwd = (vim.uv or vim.loop).cwd()
   local root = get_root(cwd)
   if root == nil then
     vim.o.shell = oldshell

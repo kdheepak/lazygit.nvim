@@ -46,7 +46,20 @@ local function exec_lazygit_command(cmd)
   if LAZYGIT_LOADED == false then
     -- ensure that the buffer is closed on exit
     vim.g.lazygit_opened = 1
-    vim.fn.termopen(cmd, { on_exit = on_exit })
+
+    local command
+    if type(cmd) == "string" then
+      -- Split string into table of arguments
+      command = {}
+      for arg in string.gmatch(cmd, "%S+") do
+        table.insert(command, arg)
+      end
+    else
+      -- cmd is already a table
+      command = cmd
+    end
+
+    vim.fn.jobstart(command, { term = true, on_exit = on_exit })
   end
   vim.cmd("startinsert")
 end
@@ -75,8 +88,8 @@ local function lazygitgetconfigpath()
     else
       print(
         "lazygit: custom config file path: '"
-        .. vim.g.lazygit_config_file_path
-        .. "' could not be found. Returning default config"
+          .. vim.g.lazygit_config_file_path
+          .. "' could not be found. Returning default config"
       )
       return default_config_path
     end

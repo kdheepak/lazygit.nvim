@@ -111,7 +111,7 @@ local function lazygitlog(path)
 
   win, buffer = open_floating_window()
 
-  local cmd = "lazygit log"
+  local cmd = {"lazygit", "log"}
 
   -- set path to the root path
   _ = project_root_dir()
@@ -121,18 +121,23 @@ local function lazygitlog(path)
     if type(config_path) == "table" then
       config_path = table.concat(config_path, ",")
     end
-    cmd = cmd .. " -ucf \"" .. config_path .. "\"" -- quote config_path to avoid whitespace errors
+    table.insert(cmd, "-ucf")
+    table.insert(cmd, config_path)
   end
 
   if vim.env.GIT_DIR ~= nil and vim.env.GIT_WORK_TREE ~= nil then
-    cmd = cmd .. " -w " .. vim.env.GIT_WORK_TREE .. " -g " .. vim.env.GIT_DIR
+    table.insert(cmd, "-w")
+    table.insert(cmd, vim.env.GIT_WORK_TREE)
+    table.insert(cmd, "-g")
+    table.insert(cmd, vim.env.GIT_DIR)
   elseif path == nil then
     if is_symlink() then
       path = project_root_dir()
     end
   else
     if fn.isdirectory(path) then
-      cmd = cmd .. " -p " .. path
+      table.insert(cmd, "-p")
+      table.insert(cmd, path)
     end
   end
 
@@ -150,7 +155,7 @@ local function lazygit(path)
 
   win, buffer = open_floating_window()
 
-  local cmd = "lazygit"
+  local cmd = {"lazygit"}
 
   -- set path to the root path
   _ = project_root_dir()
@@ -160,18 +165,23 @@ local function lazygit(path)
     if type(config_path) == "table" then
       config_path = table.concat(config_path, ",")
     end
-    cmd = cmd .. " -ucf \"" .. config_path .. "\"" -- quote config_path to avoid whitespace errors
+    table.insert(cmd, "-ucf")
+    table.insert(cmd, config_path)
   end
 
   if vim.env.GIT_DIR ~= nil and vim.env.GIT_WORK_TREE ~= nil then
-    cmd = cmd .. " -w " .. vim.env.GIT_WORK_TREE .. " -g " .. vim.env.GIT_DIR
+    table.insert(cmd, "-w")
+    table.insert(cmd, vim.env.GIT_WORK_TREE)
+    table.insert(cmd, "-g")
+    table.insert(cmd, vim.env.GIT_DIR)
   elseif path == nil then
     if is_symlink() then
       path = project_root_dir()
     end
   else
     if fn.isdirectory(path) then
-      cmd = cmd .. " -p " .. path
+      table.insert(cmd, "-p")
+      table.insert(cmd, path)
     end
   end
 
@@ -197,9 +207,10 @@ local function lazygitfilter(path, git_root)
   prev_win = vim.api.nvim_get_current_win()
   win, buffer = open_floating_window()
 
-  local cmd = "lazygit " .. "-f \"" .. path .. "\""
+  local cmd = {"lazygit", "-f", path}
   if git_root then
-    cmd = cmd .. " -p \"" .. git_root .. "\""
+    table.insert(cmd, "-p")
+    table.insert(cmd, git_root)
   end
   exec_lazygit_command(cmd)
 end

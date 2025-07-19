@@ -46,7 +46,13 @@ local function exec_lazygit_command(cmd)
   if LAZYGIT_LOADED == false then
     -- ensure that the buffer is closed on exit
     vim.g.lazygit_opened = 1
-    vim.fn.termopen(cmd, { on_exit = on_exit })
+
+    local command = {}
+    for arg in string.gmatch(cmd, "%S+") do
+        table.insert(command, arg)
+    end
+
+    vim.fn.jobstart(command, { term = true, on_exit = on_exit} )
   end
   vim.cmd("startinsert")
 end

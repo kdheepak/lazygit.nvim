@@ -47,12 +47,19 @@ local function exec_lazygit_command(cmd)
     -- ensure that the buffer is closed on exit
     vim.g.lazygit_opened = 1
 
-    local command = {}
-    for arg in string.gmatch(cmd, "%S+") do
+    local command
+    if type(cmd) == "string" then
+      -- Split string into table of arguments
+      command = {}
+      for arg in string.gmatch(cmd, "%S+") do
         table.insert(command, arg)
+      end
+    else
+      -- cmd is already a table
+      command = cmd
     end
 
-    vim.fn.jobstart(command, { term = true, on_exit = on_exit} )
+    vim.fn.jobstart(command, { term = true, on_exit = on_exit })
   end
   vim.cmd("startinsert")
 end
@@ -81,8 +88,8 @@ local function lazygitgetconfigpath()
     else
       print(
         "lazygit: custom config file path: '"
-        .. vim.g.lazygit_config_file_path
-        .. "' could not be found. Returning default config"
+          .. vim.g.lazygit_config_file_path
+          .. "' could not be found. Returning default config"
       )
       return default_config_path
     end
@@ -114,7 +121,7 @@ local function lazygitlog(path)
     if type(config_path) == "table" then
       config_path = table.concat(config_path, ",")
     end
-    cmd = cmd .. ' -ucf "' .. config_path .. '"' -- quote config_path to avoid whitespace errors
+    cmd = cmd .. " -ucf \"" .. config_path .. "\"" -- quote config_path to avoid whitespace errors
   end
 
   if vim.env.GIT_DIR ~= nil and vim.env.GIT_WORK_TREE ~= nil then
@@ -153,7 +160,7 @@ local function lazygit(path)
     if type(config_path) == "table" then
       config_path = table.concat(config_path, ",")
     end
-    cmd = cmd .. ' -ucf "' .. config_path .. '"' -- quote config_path to avoid whitespace errors
+    cmd = cmd .. " -ucf \"" .. config_path .. "\"" -- quote config_path to avoid whitespace errors
   end
 
   if vim.env.GIT_DIR ~= nil and vim.env.GIT_WORK_TREE ~= nil then
@@ -190,9 +197,9 @@ local function lazygitfilter(path, git_root)
   prev_win = vim.api.nvim_get_current_win()
   win, buffer = open_floating_window()
 
-  local cmd = "lazygit " .. '-f "' .. path .. '"'
+  local cmd = "lazygit " .. "-f \"" .. path .. "\""
   if git_root then
-    cmd = cmd .. ' -p "' .. git_root .. '"'
+    cmd = cmd .. " -p \"" .. git_root .. "\""
   end
   exec_lazygit_command(cmd)
 end

@@ -11,9 +11,12 @@ local function get_window_pos()
 
   local status, plenary = pcall(require, 'plenary.window.float')
   if status and vim.g.lazygit_floating_window_use_plenary and vim.g.lazygit_floating_window_use_plenary ~= 0 then
-    local ret = plenary.percentage_range_window(floating_window_scaling_factor, floating_window_scaling_factor,
-      { winblend = vim.g.lazygit_floating_window_winblend })
-    return ret.win_id, ret.bufnr
+    local ret = plenary.percentage_range_window(
+      floating_window_scaling_factor,
+      floating_window_scaling_factor,
+      { winblend = vim.g.lazygit_floating_window_winblend }
+    )
+    return nil, nil, nil, nil, ret.win_id, ret.bufnr
   end
 
   local height = math.ceil(vim.o.lines * floating_window_scaling_factor) - 1
@@ -25,7 +28,10 @@ end
 
 --- open floating window with nice borders
 local function open_floating_window()
-  local width, height, row, col = get_window_pos()
+  local width, height, row, col, plenary_win, plenary_buf = get_window_pos()
+  if plenary_win and plenary_buf then
+    return plenary_win, plenary_buf
+  end
 
   local border_opts = {
     style = 'minimal',

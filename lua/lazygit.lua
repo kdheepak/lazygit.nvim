@@ -59,7 +59,9 @@ local function exec_lazygit_command(cmd)
       command = cmd
     end
 
-    vim.fn.jobstart(command, { term = true, on_exit = on_exit })
+    vim.schedule(function()
+      vim.fn.jobstart(command, { term = true, on_exit = on_exit })
+    end)
   end
   vim.cmd("startinsert")
 end

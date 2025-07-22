@@ -13,9 +13,12 @@ assignees: ''
 
 **To Reproduce**
 
-Here are the steps to reproduce the behavior using [MINRC](../blob/master/tests/MINRC):
+Here are the steps to reproduce the behavior using [init.lua](../blob/main/tests/init.lua):
 
 <!--
+
+$ nvim -u tests/init.lua
+
 1. ...
 2. ...
 3. ...

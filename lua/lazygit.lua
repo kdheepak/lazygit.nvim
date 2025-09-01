@@ -113,7 +113,7 @@ local function lazygitlog(path)
 
   win, buffer = open_floating_window()
 
-  local cmd = {"lazygit", "log"}
+  local cmd = { "lazygit", "log" }
 
   -- set path to the root path
   _ = project_root_dir()
@@ -157,7 +157,7 @@ local function lazygit(path)
 
   win, buffer = open_floating_window()
 
-  local cmd = {"lazygit"}
+  local cmd = { "lazygit" }
 
   -- set path to the root path
   _ = project_root_dir()
@@ -209,11 +209,12 @@ local function lazygitfilter(path, git_root)
   prev_win = vim.api.nvim_get_current_win()
   win, buffer = open_floating_window()
 
-  local cmd = {"lazygit", "-f", path}
-  if git_root then
+  local cmd = { "lazygit", "-f", path }
+  if git_root and (not vim.env.GIT_DIR and not vim.env.GIT_WORK_TREE) then
     table.insert(cmd, "-p")
     table.insert(cmd, git_root)
   end
+
   exec_lazygit_command(cmd)
 end
 

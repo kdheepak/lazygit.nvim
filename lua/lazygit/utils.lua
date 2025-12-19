@@ -28,7 +28,7 @@ end
 local function get_root(cwd)
   local status, job = pcall(require, 'plenary.job')
   if not status then
-    return trim(fn.system('git rev-parse --show-toplevel'))
+    return trim(fn.system('git -C ' .. cwd .. ' rev-parse --show-toplevel'))
   end
 
   local gitroot_job = job:new({

@@ -22,6 +22,18 @@ local function normalize_path(path)
     return nil
   end
   local normalized = fn.fnamemodify(path, ":p")
+  local uv = vim.uv or vim.loop
+  if uv and uv.fs_realpath then
+    local realpath = uv.fs_realpath(normalized)
+    if realpath ~= nil then
+      normalized = realpath
+    end
+  else
+    local resolved = fn.resolve(normalized)
+    if resolved ~= nil and resolved ~= "" then
+      normalized = resolved
+    end
+  end
   if normalized:sub(-1) == path_sep then
     normalized = normalized:sub(1, -2)
   end
@@ -61,9 +73,19 @@ local function capture_worktree_state()
     if vim.api.nvim_buf_is_loaded(buf) then
       local name = vim.api.nvim_buf_get_name(buf)
       if name ~= "" then
+        local ft = vim.bo[buf].filetype
+        local path = name
+        local real_path = nil
+        if ft == "oil" then
+          real_path = normalize_path(name:gsub("^oil://", ""))
+        else
+          path = normalize_path(name)
+        end
         table.insert(buffers, {
           buf = buf,
-          path = normalize_path(name),
+          path = path,
+          real_path = real_path,
+          ft = ft,
           modified = vim.bo[buf].modified,
         })
       end
@@ -121,7 +143,20 @@ local function sync_worktree(state)
 
   local buf_to_new_path = {}
   for _, info in ipairs(state.buffers) do
-    if info.path and is_path_in_root(info.path, state.root) then
+    if info.ft == "oil" then
+      local oil_path = info.real_path
+      if oil_path then
+        if oil_path == state.root then
+          buf_to_new_path[info.buf] = "oil://" .. new_root
+        elseif is_path_in_root(oil_path, state.root) then
+          local rel = oil_path:sub(#state.root + 2)
+          if rel ~= nil and rel ~= "" then
+            local new_dir = new_root .. path_sep .. rel
+            buf_to_new_path[info.buf] = "oil://" .. new_dir
+          end
+        end
+      end
+    elseif info.path and is_path_in_root(info.path, state.root) then
       local rel = info.path:sub(#state.root + 2)
       if rel ~= nil and rel ~= "" then
         local new_path = new_root .. path_sep .. rel
@@ -187,8 +222,11 @@ end
 
 --- on_exit callback function to delete the open buffer when lazygit exits in a neovim terminal
 local function on_exit(job_id, code, event)
+  if vim.g.lazygit_worktree_switch == 1 and worktree_state ~= nil then
+    sync_worktree(worktree_state)
+  end
+  clear_worktree_state()
   if code ~= 0 then
-    clear_worktree_state()
     return
   end
 
@@ -209,11 +247,6 @@ local function on_exit(job_id, code, event)
     buffer = -1
     win = -1
   end
-
-  if vim.g.lazygit_worktree_switch == 1 and worktree_state ~= nil then
-    sync_worktree(worktree_state)
-  end
-  clear_worktree_state()
 
   if vim.g.lazygit_on_exit_callback ~= nil then
     vim.g.lazygit_on_exit_callback()

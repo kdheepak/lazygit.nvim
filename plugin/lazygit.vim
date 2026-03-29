@@ -42,6 +42,10 @@ if !exists('g:lazygit_config_file_path')
   let g:lazygit_config_file_path = ''
 endif
 
+if !exists('g:lazygit_worktree_switch')
+  let g:lazygit_worktree_switch = 0
+endif
+
 command! LazyGit lua require'lazygit'.lazygit()
 
 command! LazyGitLog lua require'lazygit'.lazygitlog()

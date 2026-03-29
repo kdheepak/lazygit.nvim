@@ -13,10 +13,182 @@ vim.g.lazygit_opened = 0
 local prev_win = -1
 local win = -1
 local buffer = -1
+local worktree_state = nil
+local worktree_new_dir_file = nil
+local path_sep = package.config:sub(1, 1)
+
+local function normalize_path(path)
+  if path == nil or path == "" then
+    return nil
+  end
+  local normalized = fn.fnamemodify(path, ":p")
+  if normalized:sub(-1) == path_sep then
+    normalized = normalized:sub(1, -2)
+  end
+  return normalized
+end
+
+local function is_path_in_root(path, root)
+  if path == nil or root == nil then
+    return false
+  end
+  if path == root then
+    return false
+  end
+  if path:sub(1, #root) ~= root then
+    return false
+  end
+  local next_char = path:sub(#root + 1, #root + 1)
+  return next_char == path_sep
+end
+
+local function file_exists(path)
+  return path ~= nil and fn.filereadable(path) == 1
+end
+
+local function capture_worktree_state()
+  local root = project_root_dir()
+  if root == nil then
+    return nil
+  end
+  root = normalize_path(root)
+  if root == nil then
+    return nil
+  end
+
+  local buffers = {}
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_is_loaded(buf) then
+      local name = vim.api.nvim_buf_get_name(buf)
+      if name ~= "" then
+        table.insert(buffers, {
+          buf = buf,
+          path = normalize_path(name),
+          modified = vim.bo[buf].modified,
+        })
+      end
+    end
+  end
+
+  local windows = {}
+  for _, win_id in ipairs(vim.api.nvim_list_wins()) do
+    windows[win_id] = vim.api.nvim_win_get_buf(win_id)
+  end
+
+  return {
+    root = root,
+    buffers = buffers,
+    windows = windows,
+  }
+end
+
+local function read_new_worktree_root()
+  if worktree_new_dir_file == nil then
+    return nil
+  end
+  local ok, lines = pcall(fn.readfile, worktree_new_dir_file)
+  if not ok or lines == nil or #lines == 0 then
+    return nil
+  end
+  local new_dir = lines[1]
+  if new_dir == nil then
+    return nil
+  end
+  new_dir = new_dir:gsub("^%s+", ""):gsub("%s+$", "")
+  if new_dir == "" then
+    return nil
+  end
+  local root = get_root(new_dir) or new_dir
+  return normalize_path(root)
+end
+
+local function clear_worktree_state()
+  if worktree_new_dir_file ~= nil then
+    pcall(os.remove, worktree_new_dir_file)
+  end
+  worktree_new_dir_file = nil
+  worktree_state = nil
+end
+
+local function sync_worktree(state)
+  local new_root = read_new_worktree_root()
+  if state == nil or state.root == nil or new_root == nil or new_root == state.root then
+    return
+  end
+  if fn.isdirectory(new_root) == 0 then
+    return
+  end
+
+  local buf_to_new_path = {}
+  for _, info in ipairs(state.buffers) do
+    if info.path and is_path_in_root(info.path, state.root) then
+      local rel = info.path:sub(#state.root + 2)
+      if rel ~= nil and rel ~= "" then
+        local new_path = new_root .. path_sep .. rel
+        if file_exists(new_path) then
+          buf_to_new_path[info.buf] = new_path
+        else
+          buf_to_new_path[info.buf] = false
+        end
+      end
+    end
+  end
+
+  local new_buf_cache = {}
+  local function get_new_buf(path)
+    if new_buf_cache[path] and vim.api.nvim_buf_is_valid(new_buf_cache[path]) then
+      return new_buf_cache[path]
+    end
+    local buf = fn.bufadd(path)
+    fn.bufload(buf)
+    new_buf_cache[path] = buf
+    return buf
+  end
+
+  for win_id, buf in pairs(state.windows) do
+    if vim.api.nvim_win_is_valid(win_id) and buf_to_new_path[buf] ~= nil then
+      local new_path = buf_to_new_path[buf]
+      if new_path then
+        local new_buf = get_new_buf(new_path)
+        pcall(vim.api.nvim_win_set_buf, win_id, new_buf)
+      end
+    end
+  end
+
+  vim.api.nvim_set_current_dir(new_root)
+  for _, win_id in ipairs(vim.api.nvim_list_wins()) do
+    if vim.api.nvim_win_is_valid(win_id) then
+      pcall(vim.api.nvim_win_call, win_id, function()
+        vim.cmd("silent! lcd " .. fn.fnameescape(new_root))
+      end)
+    end
+  end
+
+  local kept_modified = {}
+  for buf, _ in pairs(buf_to_new_path) do
+    if vim.api.nvim_buf_is_valid(buf) then
+      if vim.bo[buf].modified then
+        table.insert(kept_modified, vim.api.nvim_buf_get_name(buf))
+      else
+        pcall(vim.api.nvim_buf_delete, buf, { force = false })
+      end
+    end
+  end
+
+  if #kept_modified > 0 then
+    vim.schedule(function()
+      vim.notify(
+        "lazygit.nvim: kept " .. #kept_modified .. " modified buffer(s) from previous worktree",
+        vim.log.levels.WARN
+      )
+    end)
+  end
+end
 
 --- on_exit callback function to delete the open buffer when lazygit exits in a neovim terminal
 local function on_exit(job_id, code, event)
   if code ~= 0 then
+    clear_worktree_state()
     return
   end
 
@@ -37,6 +209,11 @@ local function on_exit(job_id, code, event)
     buffer = -1
     win = -1
   end
+
+  if vim.g.lazygit_worktree_switch == 1 and worktree_state ~= nil then
+    sync_worktree(worktree_state)
+  end
+  clear_worktree_state()
 
   if vim.g.lazygit_on_exit_callback ~= nil then
     vim.g.lazygit_on_exit_callback()
@@ -62,7 +239,17 @@ local function exec_lazygit_command(cmd)
     end
 
     vim.schedule(function()
-      vim.fn.jobstart(command, { term = true, on_exit = on_exit })
+      local opts = { term = true, on_exit = on_exit }
+      if vim.g.lazygit_worktree_switch == 1 then
+        worktree_state = capture_worktree_state()
+        if worktree_state ~= nil then
+          worktree_new_dir_file = fn.tempname()
+          local base_env = fn.environ()
+          base_env.LAZYGIT_NEW_DIR_FILE = worktree_new_dir_file
+          opts.env = base_env
+        end
+      end
+      vim.fn.jobstart(command, opts)
     end)
   end
   vim.cmd("startinsert")

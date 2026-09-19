@@ -54,6 +54,20 @@ return {
 }
 ```
 
+Install using [`neovim pack`](https://neovim.io/doc/user/pack/#packages)
+
+Since Neovim 0.12+ support for native package managing is builtin
+
+```lua
+-- nvim v0.12+
+vim.pack.add({ { src = 'https://github.com/kdheepak/lazygit.nvim' } })
+
+-- you will most likely also need plenary dependency if you are manually managing packages:
+-- vim.pack.add({ { src = 'https://github.com/nvim-lua/plenary.nvim'} })
+
+vim.keymap.set('n', '<Leader>g', '<cmd>LazyGit<CR>', { desc = 'Open LazyGit' } )
+```
+
 Feel free to use any plugin manager.
 Just remember that if you are not using the latest neovim release, you will need to use [the `nvim-v0.4.3` branch](https://github.com/kdheepak/lazygit.vim/tree/nvim-v0.4.3).
 Integration with `nvr` works better on the `main` branch.
